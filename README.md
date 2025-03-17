@@ -1,5 +1,8 @@
 # ASSINONDEQUISERES: Assinaturas Digitais para Documentos com Alternativas
 
+## Entrega do Trabalho
+A entrega do trabalho é feita única e exclusivamente via Moodle até às 23:59 do dia 25/05/2025. Os nomes dos ficheiros devem seguir a especificação incluída na seção dedicada a essa entrega na plataforma. Para cada dia de atraso na entrega de qualquer elemento do trabalho (código de implementação, scripts de instalação ou outros artefatos), serão descontados 0,5 valores (aos 5).
+
 ## Introdução
 O ato de assinatura presume que o conteúdo do documento não irá mudar após a assinatura. A assinatura digital, enquanto mecanismo criptográfico, garante a autenticidade e a integridade absoluta do conteúdo assinado. Esse caso de uso satisfaz a maioria dos cenários. 
 
@@ -37,9 +40,6 @@ Durante a implementação, é importante considerar possíveis vulnerabilidades.
 - Possibilidade de ataques por substituição de placeholders não assinados;
 - Segurança da chave privada armazenada;
 - Integridade das alternativas escolhidas no documento final.
-
-## Entrega do Trabalho
-A entrega do trabalho é feita única e exclusivamente via Moodle até às 23:59 do dia 25/05/2025. Os nomes dos ficheiros devem seguir a especificação incluída na seção dedicada a essa entrega na plataforma. Para cada dia de atraso na entrega de qualquer elemento do trabalho (código de implementação, scripts de instalação ou outros artefatos), serão descontados 0,5 valores (aos 5).
 
 ## Sugestão de Alinhamento para a Apresentação
 A defesa do trabalho deve ser acompanhada por um breve conjunto de diapositivos. A apresentação oral pelos elementos do grupo não pode demorar mais do que 10 minutos. O alinhamento sugerido é:
