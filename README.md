@@ -55,4 +55,6 @@ A defesa do trabalho deve ser acompanhada por um breve conjunto de diapositivos.
 9. Objetivos alcançados, conclusões e trabalho futuro;
 10. Agradecimento e abertura para perguntas.
 
+## Licença
+Este projeto está licenciado sob a [MIT License](LICENSE).
 
