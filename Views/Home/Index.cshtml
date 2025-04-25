@@ -1,18 +1,36 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Página Inicial";
 }
 
 <div id="particles-js"></div>
 
 <div class="text-center content">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <p>Explore the world of <strong>cryptography</strong> and secure your applications!</p>
+    <h1 class="display-4">Bem-vindo ao OpenSign</h1>
+    <p>Aprende sobre <a href="https://learn.microsoft.com/aspnet/core">ASP.NET Core</a> e <strong>criptografia</strong>.</p>
 </div>
+
+<!-- Mensagens com Bootstrap Alerts  -->
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show text-center mt-3" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show text-center mt-3" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-    <script>particlesJS("particles-js", {
+    <script>
+        particlesJS("particles-js", {
             "particles": {
                 "number": {
                     "value": 100,
@@ -21,24 +39,10 @@
                         "value_area": 800
                     }
                 },
-                "color": {
-                    "value": "#ffffff"
-                },
-                "shape": {
-                    "type": "circle",
-                    "stroke": {
-                        "width": 0,
-                        "color": "#000000"
-                    }
-                },
-                "opacity": {
-                    "value": 0.5,
-                    "random": false
-                },
-                "size": {
-                    "value": 3,
-                    "random": true
-                },
+                "color": { "value": "#ffffff" },
+                "shape": { "type": "circle" },
+                "opacity": { "value": 0.5 },
+                "size": { "value": 3, "random": true },
                 "line_linked": {
                     "enable": true,
                     "distance": 150,
@@ -50,78 +54,48 @@
                     "enable": true,
                     "speed": 6,
                     "direction": "none",
-                    "random": false,
-                    "straight": false,
-                    "out_mode": "out",
-                    "bounce": false
+                    "out_mode": "out"
                 }
             },
             "interactivity": {
-                "detect_on": "canvas",
                 "events": {
-                    "onhover": {
-                        "enable": true,
-                        "mode": "grab"
-                    },
-                    "onclick": {
-                        "enable": true,
-                        "mode": "push"
-                    }
+                    "onhover": { "enable": true, "mode": "grab" },
+                    "onclick": { "enable": true, "mode": "push" }
                 },
                 "modes": {
-                    "grab": {
-                        "distance": 140,
-                        "line_linked": {
-                            "opacity": 1
-                        }
-                    },
-                    "push": {
-                        "particles_nb": 4
-                    }
+                    "grab": { "distance": 140, "line_linked": { "opacity": 1 } },
+                    "push": { "particles_nb": 4 }
                 }
             },
             "retina_detect": true
-        });</script>
+        });
+    </script>
 }
 
 <style>
     #particles-js {
-        position: fixed; /* Melhor do que absolute neste caso */
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
         background: linear-gradient(120deg, #1a2a6c, #b21f1f, #fdbb2d);
-        background-size: cover;
         z-index: -1;
     }
 
     .content {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 1;
+        position: relative;
         color: white;
         text-align: center;
-        width: 100%;
-        max-width: 800px;
-        padding: 0 20px;
-        box-sizing: border-box;
+        margin-top: 10%;
     }
-
 
     a {
         color: #ffd700;
         text-decoration: underline;
     }
+
     html, body {
         height: 100%;
         margin: 0;
         padding: 0;
-        overflow: hidden;
     }
-
 </style>
-
-
