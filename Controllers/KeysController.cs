@@ -1,10 +1,14 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace OpenSign_.Controllers
+namespace OpenSign.Controllers
 {
     public class KeysController : Controller
     {
-        [HttpGet]
+        public IActionResult Generate()
+        {
+            return View();
+        }
+
         public IActionResult Import()
         {
             return View();
