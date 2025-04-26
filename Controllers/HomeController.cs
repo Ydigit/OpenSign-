@@ -1,6 +1,4 @@
-using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;  // Only this one
 
 namespace OpenSign.Controllers
 {
@@ -8,9 +6,6 @@ namespace OpenSign.Controllers
     {
         public IActionResult Index()
         {
-            //TempData["Success"] = "Sucesso";
-            //TempData["Error"] = "Erro";
-
             return View();
         }
 
@@ -25,5 +20,3 @@ namespace OpenSign.Controllers
         }
     }
 }
-
-

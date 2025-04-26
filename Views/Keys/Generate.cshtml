@@ -1,6 +1,43 @@
 @{
-    Layout = "_Layout";
     ViewData["Title"] = "Gerar Chaves";
 }
-<h2>Gerar Chaves</h2>
-<p>Gera as tuas chaves públicas e privadas com segurança.</p>
+
+<h2>@ViewData["Title"]</h2>
+
+<form method="post">
+    <div>
+        <label for="keySize">Tamanho da Chave:</label>
+        <select id="keySize" name="keySize">
+            <option value="2048">2048 bits</option>
+            <option value="3072">3072 bits</option>
+            <option value="4096">4096 bits</option>
+        </select>
+    </div>
+    <div>
+        <label for="format">Formato:</label>
+        <select id="format" name="format">
+            <option value="pem">PEM</option>
+            <option value="xml">XML</option>
+        </select>
+    </div>
+    <button type="submit">Gerar Chaves</button>
+</form>
+
+@if (TempData["Error"] != null)
+{
+    <div style="color: red;">@TempData["Error"]</div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div style="color: green;">@TempData["Success"]</div>
+}
+
+@if (ViewBag.PublicKey != null && ViewBag.PrivateKey != null)
+{
+    <h3>Chaves Geradas:</h3>
+    <h4>Chave Pública:</h4>
+    <pre>@ViewBag.PublicKey</pre>
+    <h4>Chave Privada:</h4>
+    <pre>@ViewBag.PrivateKey</pre>
+}

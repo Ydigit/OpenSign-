@@ -4,13 +4,37 @@ namespace OpenSign.Controllers
 {
     public class KeysController : Controller
     {
+        private readonly KeyService _keyService;
+
+        public KeysController(KeyService keyService)
+        {
+            _keyService = keyService;
+        }
+
         public IActionResult Generate()
         {
             return View();
         }
 
-        public IActionResult Import()
+        [HttpPost]
+        public IActionResult Generate(int keySize, string format)
         {
+            if (keySize != 2048 && keySize != 3072 && keySize != 4096 || (format != "pem" && format != "xml"))
+            {
+                TempData["Error"] = "Entrada inválida.";
+                return View();
+            }
+
+            // Use reflection to access private method GenerateRSAKeyPair
+            _keyService.GetType()
+                .GetMethod("GenerateRSAKeyPair", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?
+                .Invoke(_keyService, new object[] { keySize, format });
+
+            var keys = _keyService.GetCurrentKeys();
+            ViewBag.PublicKey = keys.GetType().GetProperty("PublicKey")?.GetValue(keys);
+            ViewBag.PrivateKey = keys.GetType().GetProperty("PrivateKey")?.GetValue(keys);
+
+            TempData["Success"] = $"Chaves {format.ToUpper()} de {keySize} bits geradas com sucesso.";
             return View();
         }
     }
