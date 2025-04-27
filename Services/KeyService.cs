@@ -1,11 +1,15 @@
 using System;
+using System.IO;
 using System.Security.Cryptography;
+using System.Security.Policy;
 using System.Text;
+using OpenSign.Shared;
 
 public class KeyService
 {
     private string _publicKey = string.Empty;
     private string _privateKey = string.Empty;
+    private string _keyCreationDate = string.Empty;
 
     /// <summary>
     /// Inicializa as chaves RSA do serviço.
@@ -22,7 +26,8 @@ public class KeyService
     {
         if (keySize == 2048 || keySize == 3072 || keySize == 4096)
         {
-            GenerateRSAKeyPair(keySize, format);
+            //Based on settings defined by the user, internal vars get the actual values for this void callback
+            GenerateKeys(keySize, format);
         }
         else
         {
@@ -30,55 +35,153 @@ public class KeyService
         }
     }
 
+    public void GenerateKeys(int keySize,string format)
+    {
+        GenerateRSAKeyPair(keySize, format);
+    }
+
     /// <summary>
     /// Generates RSA keys based on the specified key size and format.
     /// </summary>
     private void GenerateRSAKeyPair(int keySize, string format)
     {
-        using (var rsa = RSA.Create())
-        {
-            rsa.KeySize = keySize;
+        //prepare paths for the file location
+        string dateTicks = DateTime.Now.Ticks.ToString();
+        string pubfilePath = null;
+        string privfilePath = null;
 
-            if (format == "pem")
+        
+            using (var rsa = RSA.Create())
             {
-                _publicKey = ExportPublicKeyPEM(rsa);
-                _privateKey = ExportPrivateKeyPEM(rsa);
+                rsa.KeySize = keySize;
 
-                System.IO.File.WriteAllText("publicKey.pem", _publicKey);
-                System.IO.File.WriteAllText("privateKey.pem", _privateKey);
-            }
-            else // xml
-            {
-                _publicKey = rsa.ToXmlString(false); // public only
-                _privateKey = rsa.ToXmlString(true);  // public + private
+                if (format == "pem")
+                {
+                    //rsa values
+                    _publicKey = ExportPublicKeyPEM(rsa);
+                    _privateKey = ExportPrivateKeyPEM(rsa);
+                    //file pathsW
+                     pubfilePath = AppPaths.GetKeyPathPEM($"public_{dateTicks}");
+                     privfilePath = AppPaths.GetKeyPathPEM($"private_{dateTicks}");
+                    //Check if the directory exists, if not create it
+                    if (!System.IO.Directory.Exists(AppPaths.KeysPath))
+                    {
+                        System.IO.Directory.CreateDirectory(AppPaths.KeysPath);
+                    }
+                    //write the keys to the files
+                    System.IO.File.WriteAllText(pubfilePath, _publicKey);
+                    System.IO.File.WriteAllText(privfilePath, _privateKey);
+                }
+                else // xml
+                {
+                    _publicKey = rsa.ToXmlString(false); // public only
+                    _privateKey = rsa.ToXmlString(true);  // public + private
 
-                System.IO.File.WriteAllText("publicKey.xml", _publicKey);
-                System.IO.File.WriteAllText("privateKey.xml", _privateKey);
+                    //file paths
+                    pubfilePath = AppPaths.GetKeyPathXML($"public_{dateTicks}");
+                    privfilePath = AppPaths.GetKeyPathXML($"private_{dateTicks}");
+                    //Check if the directory exists, if not create it
+                    if (!System.IO.Directory.Exists(AppPaths.KeysPath))
+                    {
+                        System.IO.Directory.CreateDirectory(AppPaths.KeysPath);
+                    }
+                    //write the keys to the files
+                    System.IO.File.WriteAllText(pubfilePath, _publicKey);
+                    System.IO.File.WriteAllText(privfilePath, _privateKey);
             }
-        }
+            }
     }
 
     /// <summary>
     /// Carrega as chaves RSA do serviço a partir de arquivos existentes.
     /// </summary>
-    private void LoadKeysFromFiles()
+    /// 
+    //Aux Functions
+    // Extract nr o Ticks from the file name
+    private long ExtractTicksFromFileName(string fileNameWithoutExtension)
     {
-        if (System.IO.File.Exists("publicKey.pem") && System.IO.File.Exists("privateKey.pem"))
+        //array for separation
+        var parts = fileNameWithoutExtension.Split('_');//unecessary chars from fileName
+        if (parts.Length == 2 && long.TryParse(parts[1], out long ticks)) //Str->Long if success -> ticks
         {
-            _publicKey = System.IO.File.ReadAllText("publicKey.pem");
-            _privateKey = System.IO.File.ReadAllText("privateKey.pem");
+            return ticks;
         }
-        else if (System.IO.File.Exists("publicKey.xml") && System.IO.File.Exists("privateKey.xml"))
+        return 0;
+    }
+
+    // Get timeStamp function
+    private string ExtractTimestampFromFileName(string fileNameWithoutExtension)
+    {
+        var parts = fileNameWithoutExtension.Split('_');
+        if (parts.Length == 2)
+            return parts[1]; //returns only the raw ticks value as a String
+        return "";
+    }
+
+    private void EnsureKeyPathExists()
+    {
+        if (Directory.Exists(AppPaths.KeysPath))
         {
-            _publicKey = System.IO.File.ReadAllText("publicKey.xml");
-            _privateKey = System.IO.File.ReadAllText("privateKey.xml");
+            Console.WriteLine("KeyPath is there");
         }
         else
         {
-            Console.WriteLine("Nenhum arquivo de chave encontrado.");
+            Directory.CreateDirectory(AppPaths.KeysPath);
         }
     }
 
+
+
+
+    private void LoadKeysFromFiles()
+    {
+        EnsureKeyPathExists(); //KeysPAth
+
+        //List for files present in the KeysPath dir with public & ext of pem || xml
+        var publicKeys = Directory.GetFiles(AppPaths.KeysPath, "public_*.pem")
+            .Concat(Directory.GetFiles(AppPaths.KeysPath, "public_*.xml"))
+            .ToList();
+
+        if (!publicKeys.Any())//if empty
+        {
+            Console.WriteLine("No public keys available for you!");
+            return;
+        }
+
+        // Extract ticks from the previous list
+        //Here we are able to sort the files, where for each string(path/filename) remove extension
+        //inject on the tick extractor as a string without any .pem or .xml
+        //Basically orders from the highest to the lowest value of ticks bcs they are longs, then select the first one
+        //All for public ofc -> reuse for private search
+        //Selecting the latest fileName /w ext so for private just replace the pub to priv
+        var latestPublicKey = publicKeys
+            .OrderByDescending(path => ExtractTicksFromFileName(Path.GetFileNameWithoutExtension(path)))
+            .First();
+
+        // Extract ticks as string from array of the trim of the fileName
+        string timestamp = ExtractTimestampFromFileName(Path.GetFileNameWithoutExtension(latestPublicKey));
+        
+        // Construir o nome do ficheiro privado correspondente
+        string latestPrivateKey = latestPublicKey.Replace("public_", "private_");
+
+        if (File.Exists(latestPrivateKey) && File.Exists(latestPublicKey))
+        {
+            //If they exist on the sys->2 string for each content
+            _publicKey = File.ReadAllText(latestPublicKey);
+            _privateKey = File.ReadAllText(latestPrivateKey);
+            _keyCreationDate = timestamp;//equal for both
+        }
+        else
+        {
+            Console.WriteLine("Public or Private Keyy Missing:(");
+        }
+    }
+
+
+
+
+
+    //------------------------------------------------------------------------
     /// <summary>
     /// Exporta a chave pública em formato PEM.
     /// </summary>
