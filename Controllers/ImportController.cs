@@ -2,17 +2,40 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace OpenSign.Controllers
 {
-    [Route("Import")]//esta e a noma rota base do controllador
+    [Route("Import")]
     public class ImportController : Controller
     {
-        //QUANDO ACEDER AO ROUTE SIGN, VAI ACEDER AO SIGNVIEW E RETORNA A VIEW
-        [HttpGet("")]// vai definir que a action SignView ser� chamada quando a URL /Sign for acessada.
+        // GET /Import
+        [HttpGet("")]
         public IActionResult Import()
         {
             return View();
         }
+
+        // POST /Import/Assinar
+        [HttpPost("Assinar")]
+        public async Task<IActionResult> Assinar(IFormFile keyFile, string password)
+        {
+            // Simula o processo de assinatura
+            await Task.Delay(1000); // Simula algum processamento
+
+            // Verifica se a chave foi assinada corretamente
+            // Aqui pode adicionar a lógica de validação real, se necessário
+            if (keyFile != null && password != null)
+            {
+                ViewBag.Message = "Arquivo assinado com sucesso!";
+            }
+            else if (keyFile != null && password == "1")
+            {
+                ViewBag.Message = "Teste teste!";
+            }
+            else
+            {
+                ViewBag.Message = "Erro ao assinar o arquivo. Verifique os dados!";
+            }
+
+            // Retorna a mesma view com a mensagem
+            return View("Import");
+        }
     }
 }
-
-
-//Controller para poder ter uma action que retorna a respetica view
