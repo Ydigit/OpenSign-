@@ -3,6 +3,12 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+
+ wwwroot/keys/*
+
+
+
+
 # User-specific files
 *.rsuser
 *.suo
@@ -405,3 +411,7 @@ wwwroot/lib/
 node_modules/
 *.min.js
 *.min.css
+
+#---------------------------
+#keys
+/keys/*

@@ -4,10 +4,11 @@ using Microsoft.Extensions.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Use HTTP no lugar de HTTPS, sem redirecionamento
+// Port for Http
 builder.WebHost.UseUrls("http://localhost:5016");
 
 builder.Services.AddControllersWithViews();
+// Key Service will be saved for a KeyController to controll dependency inj we should register on Program.cs
 builder.Services.AddSingleton<KeyService>();
 
 var app = builder.Build();

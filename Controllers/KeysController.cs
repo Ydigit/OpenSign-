@@ -2,21 +2,26 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace OpenSign.Controllers
 {
+    [Route("Generate")]
     public class KeysController : Controller
     {
         private readonly KeyService _keyService;
 
+        // Construtor para injeção de dependência
         public KeysController(KeyService keyService)
         {
             _keyService = keyService;
         }
 
+        // GET: /Generate
+        [HttpGet("")]
         public IActionResult Generate()
         {
             return View();
         }
 
-        [HttpPost]
+        // POST: /Generate
+        [HttpPost("")]
         public IActionResult Generate(int keySize, string format)
         {
             if (keySize != 2048 && keySize != 3072 && keySize != 4096 || (format != "pem" && format != "xml"))
