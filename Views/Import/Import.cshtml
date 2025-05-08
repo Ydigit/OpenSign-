@@ -1,0 +1,32 @@
+@{
+    ViewData["Title"] = "Importar Chave Privada";
+}
+
+<div class="container mt-4">
+    <h2>Importar Chave Privada</h2>
+    <form asp-controller="Keys" asp-action="ImportPrivateKey" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="keyFile">Ficheiro da chave cifrada (.json)</label>
+            <input type="file" name="keyFile" class="form-control" required />
+        </div>
+        <div class="form-group mt-3">
+            <label for="password">Password</label>
+            <input type="password" name="password" class="form-control" required />
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Importar</button>
+    </form>
+
+    @if (ViewBag.Message != null)
+    {
+    <div class="alert alert-info mt-3">@ViewBag.Message</div>
+    }
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Generate.css" />
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="~/js/site.js"></script>
+}

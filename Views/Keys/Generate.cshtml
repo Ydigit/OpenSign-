@@ -3,6 +3,7 @@
 }
 
 <h2>@ViewData["Title"]</h2>
+<div id="particles-js"></div>
 
 <form method="post">
     <div>
@@ -25,19 +26,27 @@
 
 @if (TempData["Error"] != null)
 {
-    <div style="color: red;">@TempData["Error"]</div>
+<div style="color: red;">@TempData["Error"]</div>
 }
 
 @if (TempData["Success"] != null)
 {
-    <div style="color: green;">@TempData["Success"]</div>
+<div style="color: green;">@TempData["Success"]</div>
 }
 
 @if (ViewBag.PublicKey != null && ViewBag.PrivateKey != null)
 {
-    <h3>Chaves Geradas:</h3>
-    <h4>Chave Pública:</h4>
-    <pre>@ViewBag.PublicKey</pre>
-    <h4>Chave Privada:</h4>
-    <pre>@ViewBag.PrivateKey</pre>
+<h3>Chaves Geradas:</h3>
+<h4>Chave Pública:</h4>
+<pre>@ViewBag.PublicKey</pre>
+<h4>Chave Privada:</h4>
+<pre>@ViewBag.PrivateKey</pre>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Generate.css" />
+}
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="~/js/site.js"></script>
 }
