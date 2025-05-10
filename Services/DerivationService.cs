@@ -22,7 +22,7 @@ public class DerivationService{
     */
     public static byte[] DeriveKey(string password){
 
-        byte[] salt = genSalt(16);
+        byte[] salt = genSalt(16);//16 bytes?
 
         int num_iter = 100000;
     

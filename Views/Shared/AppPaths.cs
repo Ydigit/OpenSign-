@@ -9,20 +9,30 @@ namespace OpenSign.Shared
         //Combine with any exec env for dir purposes, with curretnt execution level path and the target dir
         //FOR future dirs, readonly access is important for data integrity and security
         public static string KeysPath => Path.Combine(Directory.GetCurrentDirectory(),"wwwroot","keys");
-    
+        public static string KeysPathpub => Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "keys", "public");
+        public static string SecurePrivateBackupPath => Path.Combine(Directory.GetCurrentDirectory(), "securekeys", "private");
         //generate path for PEM
-        public static string GetKeyPathPEM(string fileName)
+        public static string GetKeyPathPEMpublic(string fileName)
         {
-            return Path.Combine(KeysPath, $"{fileName}.pem");
+            return Path.Combine(KeysPathpub, $"{fileName}.pem");
         }
- 
+        public static string SecurePrivateBackupPathKEY(string fileName)
+        {
+            return Path.Combine(KeysPathpriv, $"{fileName}.enc");
+        }
+        public static string SecurePrivateBackupPathJSON(string fileName)
+        {
+            return Path.Combine(KeysPathpriv, $"{fileName}.json");
+        }
+
         //-----------------------------------
 
-        //generate path for XML
-        public static string GetKeyPathXML(string fileName)
+        //general
+        public static string GetKeyPathGeneral(string fileName)
         {
-            return Path.Combine(KeysPath, $"{fileName}.xml");
+            //tem que meter o nome da extensao
+            return Path.Combine(KeysPath, $"{fileName}");
         }
 }
-
+    S
 }

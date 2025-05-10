@@ -7,8 +7,8 @@ using OpenSign.Shared;
 
 public class KeyService
 {
-    private string _publicKey = string.Empty;
-    private string _privateKey = string.Empty;
+    private string _publicKey = string.Empty; //direta no disco
+    private string _privateKey = string.Empty; //cifrar e guardar no disco
     private string _keyCreationDate = string.Empty;
 
     /// <summary>
@@ -34,7 +34,7 @@ public class KeyService
             LoadKeysFromFiles();
         }
     }
-
+    //Gerar as Keys
     public void GenerateKeys(int keySize,string format)
     {
         GenerateRSAKeyPair(keySize, format);
@@ -43,53 +43,48 @@ public class KeyService
     /// <summary>
     /// Generates RSA keys based on the specified key size and format.
     /// </summary>
-    private void GenerateRSAKeyPair(int keySize, string format)
+    /// 
+    //meter : iv, salt, pk, skc, modo
+    //mediante o modo ele escolhe a cifra
+
+
+    private void GenerateRSAKeyPairPEM(int keySize, byte[] derivekey, ) // meter sempre pem
     {
         //prepare paths for the file location
-        string dateTicks = DateTime.Now.Ticks.ToString();
+        string dateTicks = DateTime.Now.Ticks.ToString();//momento de geracao
         string pubfilePath = null;
         string privfilePath = null;
+        string ivPath = null;
 
-        
-            using (var rsa = RSA.Create())
-            {
+
+        using (var rsa = RSA.Create())
+        {
                 rsa.KeySize = keySize;
-
-                if (format == "pem")
-                {
                     //rsa values
                     _publicKey = ExportPublicKeyPEM(rsa);
-                    _privateKey = ExportPrivateKeyPEM(rsa);
-                    //file pathsW
-                     pubfilePath = AppPaths.GetKeyPathPEM($"public_{dateTicks}");
-                     privfilePath = AppPaths.GetKeyPathPEM($"private_{dateTicks}");
-                    //Check if the directory exists, if not create it
-                    if (!System.IO.Directory.Exists(AppPaths.KeysPath))
-                    {
-                        System.IO.Directory.CreateDirectory(AppPaths.KeysPath);
-                    }
-                    //write the keys to the files
-                    System.IO.File.WriteAllText(pubfilePath, _publicKey);
-                    System.IO.File.WriteAllText(privfilePath, _privateKey);
-                }
-                else // xml
-                {
-                    _publicKey = rsa.ToXmlString(false); // public only
-                    _privateKey = rsa.ToXmlString(true);  // public + private
-
+                    _privateKey = ExportPrivateKeyPEM(rsa); //ta em memo aqui a pk
                     //file paths
-                    pubfilePath = AppPaths.GetKeyPathXML($"public_{dateTicks}");
-                    privfilePath = AppPaths.GetKeyPathXML($"private_{dateTicks}");
-                    //Check if the directory exists, if not create it
-                    if (!System.IO.Directory.Exists(AppPaths.KeysPath))
-                    {
-                        System.IO.Directory.CreateDirectory(AppPaths.KeysPath);
-                    }
-                    //write the keys to the files
-                    System.IO.File.WriteAllText(pubfilePath, _publicKey);
-                    System.IO.File.WriteAllText(privfilePath, _privateKey);
-            }
-            }
+                     pubfilePath = AppPaths.GetKeyPathPEMpublic($"pk-{dateTicks}");
+                     privfilePath = AppPaths.SecurePrivateBackupPathKEY($"sk-{dateTicks}");
+                     //ivPath = AppPaths.GetKeyPathGeneral($"iv-{dateTicks}.iv");
+                     //Check if the directory exists, if not create it
+                     if (!System.IO.Directory.Exists(AppPaths.KeysPath))
+                     {
+                                System.IO.Directory.CreateDirectory(AppPaths.KeysPath);
+                     }
+
+                    //guardar a chave publica
+                    System.IO.File.WriteAllBytes(pubfilePath,_publicKey);
+                    //chamar derivado é no controller
+                    
+                    //cifrar e guardar cifrado, cifra com o derivekey
+                    var encryptionService = new EncryptionCBCService();
+                    //cifrar a chave privada
+                    var result = encryptionService.EncryptCBC(_privateKey, derivekey);//tupl com a cifra e iv
+                    //guardar chave cifrada , 
+                    File.WriteAllBytes(privfilePath, result.EncryptedData);
+                    File.WriteAllBytes(ivPath, result.Iv);
+        }
     }
 
     /// <summary>

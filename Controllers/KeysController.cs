@@ -47,6 +47,12 @@ namespace OpenSign.Controllers
                 .Invoke(_keyService, new object[] { keySize, encmode });
 
             var keys = _keyService.GetCurrentKeys();
+
+            //depois dele encryptar ta tudo no disco
+            //meter no disco o salt e o iv mas so em memoria
+            string saltPath = AppPaths.GetKeyPathPEM($"private_{dateTicks}.salt");
+            //escrever
+
             ViewBag.PublicKey = keys.GetType().GetProperty("PublicKey")?.GetValue(keys);
             ViewBag.PrivateKey = keys.GetType().GetProperty("PrivateKey")?.GetValue(keys);
 
