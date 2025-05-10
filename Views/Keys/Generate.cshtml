@@ -7,7 +7,7 @@
 
 <form method="post">
     <div>
-        <label for="keySize">Tamanho da Chave:</label>
+        <label for="keySize">Private Key Size:</label>
         <select id="keySize" name="keySize">
             <option value="2048">2048 bits</option>
             <option value="3072">3072 bits</option>
@@ -15,12 +15,23 @@
         </select>
     </div>
     <div>
-        <label for="format">Formato:</label>
-        <select id="format" name="format">
-            <option value="pem">PEM</option>
-            <option value="xml">XML</option>
+        <label for="encmode">Private Key Cipher Mode</label>
+        <select id="encmode" name="encmode">
+            <option value="aes-256-cbc">AES-256-CBC</option>
+            <option value="aes-256-ctr">AES-256-CTR</option>
         </select>
     </div>
+    <div>
+        <label for="pss">Password for Key Encryption</label>
+        <div class="input-group">
+            <input type="password" id="pss" name="pss" class="form-control" placeholder="Introduce your secure Password" required>
+            <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                <i class="bi bi-eye"></i>
+            </button>
+        </div>
+    </div>
+
+
     <button type="submit">Gerar Chaves</button>
 </form>
 
