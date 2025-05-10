@@ -52,14 +52,14 @@ form {
     }
 
     form button {
-        background-color: #007bff;
+        background-color: #ffd700;
         color: white;
         border: none;
         cursor: pointer;
     }
 
         form button:hover {
-            background-color: #0056b3;
+            background-color: #9c9c16;
         }
 
 h2 {
