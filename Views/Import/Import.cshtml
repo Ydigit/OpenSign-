@@ -4,7 +4,7 @@
 
 <div class="container mt-4">
     <h2>Importar Chave Privada</h2>
-    <form asp-controller="Keys" asp-action="ImportPrivateKey" method="post" enctype="multipart/form-data">
+    <form asp-controller="Import" asp-action="Decifrar" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label for="keyFile">Ficheiro da chave cifrada (.json)</label>
             <input type="file" name="keyFile" class="form-control" required />
@@ -13,7 +13,7 @@
             <label for="password">Password</label>
             <input type="password" name="password" class="form-control" required />
         </div>
-        <button type="submit" class="btn btn-primary mt-3">Importar</button>
+        <button type="submit" class="btn btn-primary mt-3">Decifrar</button>
     </form>
 
     @if (ViewBag.Message != null)
