@@ -41,3 +41,23 @@ particlesJS("particles-js", {
     },
     "retina_detect": true
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    const passwordInput = document.querySelector("#pss");
+    const toggleButton = document.querySelector("#togglePassword");
+
+    if (passwordInput && toggleButton) {
+        toggleButton.addEventListener("click", () => {
+            const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+            passwordInput.setAttribute("type", type);
+
+            // Altera ícone do botão
+            const icon = toggleButton.querySelector("i");
+            if (icon) {
+                icon.classList.toggle("bi-eye");
+                icon.classList.toggle("bi-eye-slash");
+            }
+        });
+    }
+});
+

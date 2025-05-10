@@ -74,3 +74,27 @@ pre {
     border-radius: 5px;
     overflow-x: auto;
 }
+
+.input-group {
+    display: flex;
+    align-items: center;
+}
+
+    .input-group .form-control {
+        flex: 1;
+    }
+
+    .input-group .btn {
+        margin-left: 5px;
+    }
+
+#passwordValidation {
+    font-size: 0.9rem;
+    color: red;
+}
+
+.input-group .btn {
+    width: auto; /* Ajusta o botão para ter largura automática */
+    padding: 0.375rem 0.75rem; /* Ajusta o espaçamento interno */
+    margin-left: 5px; /* Adiciona um pequeno espaço entre o botão e o campo */
+}

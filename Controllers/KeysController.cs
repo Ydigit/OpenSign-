@@ -23,7 +23,8 @@ namespace OpenSign.Controllers
         // POST: /Generate
         //trigger quando em /Generate chamo o metodo de post
         [HttpPost("")]
-        public IActionResult Generate(int keySize, string format) //Recebe 2 parametros dos formularios
+        //Adicionar os parametros de cifra simetrica
+        public IActionResult Generate(int keySize, string format, string cmode, string pss) //Recebe 2 parametros do form
         {
             if (keySize != 2048 && keySize != 3072 && keySize != 4096 || (format != "pem" && format != "xml"))
             {
