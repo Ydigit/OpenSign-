@@ -1,7 +1,6 @@
 @{
     ViewData["Title"] = "Importar Chave Privada";
 }
-
 <div id="particles-js"></div>
 
 <div class="container mt-4">
@@ -11,11 +10,17 @@
             <label for="keyFile">Ficheiro da chave cifrada (.json)</label>
             <input type="file" name="keyFile" class="form-control" required />
         </div>
-        <div class="form-group mt-3">
-            <label for="password">Password</label>
-            <input type="password" name="password" class="form-control" required />
+        <div>
+            <label for="pss">Password for Key Encryption</label>
+            <div class="input-group">
+                <input type="password" id="pss" name="pss" class="form-control" placeholder="Introduce your secure Password" required>
+                <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                    <i class="bi bi-eye"></i>
+                </button>
+            </div>
         </div>
-        <button type="submit" class="btn btn-primary mt-3">Decifrar</button>
+
+        <button type="submit">Gerar Chaves</button>
     </form>
 
     @if (ViewBag.Message != null)
@@ -25,7 +30,7 @@
 </div>
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/Generate.css" />
+    <link rel="stylesheet" href="~/css/Import.css" />
 }
 
 @section Scripts {
