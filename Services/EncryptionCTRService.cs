@@ -32,7 +32,7 @@ public class EncryptionCTRService
                     byte[] keyStream = encryptor.TransformFinalBlock(counterBlock,0,16); //encriptar cada bloco
                     int blockSize = Math.Min(16,dataBytes.Length - i); //para último bloco,caso seja menor que 16 
 
-                    for(int j = 0;i < blockSize;j++)//byte a byte
+                    for(int j = 0;j < blockSize;j++)//byte a byte
                     {
                         cypherBytes[i+j] = (byte)(dataBytes[i+j] ^ keyStream[j]); 
                     }
@@ -43,7 +43,7 @@ public class EncryptionCTRService
         }
     }
     private static void IncrementCounter(byte[] counterBlock,int offset){
-        for(int i = counterBlock.Length - 1;i < offset ;i--){
+        for(int i = counterBlock.Length - 1;i >= offset ;i--){
             
             counterBlock[i]++;
 
