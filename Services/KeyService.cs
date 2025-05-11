@@ -101,7 +101,17 @@ public class KeyService
                 CipherMode = format
             };
 
+            
+
+
             string jsonDownloadString = JsonSerializer.Serialize(jsonDownload);
+            // Verifica se a pasta securekeys/private existe
+            string privateDirectory = Path.GetDirectoryName(jsonfilePath)!;
+            if (!Directory.Exists(privateDirectory))
+            {
+                Directory.CreateDirectory(privateDirectory);
+            }
+
             //guardar o JSON
             File.WriteAllText(jsonfilePath, jsonDownloadString);//escreve em string o json
 
