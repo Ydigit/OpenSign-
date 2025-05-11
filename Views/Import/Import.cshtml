@@ -1,15 +1,25 @@
 @{
-    ViewData["Title"] = "Importar Chave Privada";
+    ViewData["Title"] = "Import Private Key";
 }
 <div id="particles-js"></div>
 
 <div class="container mt-4">
-    <h2>Importar Chave Privada</h2>
+    <h2>Import Private Key</h2>
     <form asp-controller="Import" asp-action="Decifrar" method="post" enctype="multipart/form-data">
         <div class="form-group">
-            <label for="keyFile">Ficheiro da chave cifrada (.json)</label>
-            <input type="file" name="keyFile" class="form-control" required />
+            <label for="keyFile">Encrypted Key File (.json)</label>
+            <input type="file" class="form-control d-none" id="keyFile" name="keyFile" onchange="updateFileName(this)" required>
+            <div class="input-group">
+                <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('keyFile').click()">Choose file</button>
+                <span class="form-control" id="fileLabel">No file chosen</span>
+            </div>
         </div>
+        <script>
+            function updateFileName(input) {
+                const label = document.getElementById('fileLabel');
+                label.textContent = input.files[0]?.name || 'No file chosen';
+            }
+        </script>
         <div>
             <label for="pss">Password for Key Encryption</label>
             <div class="input-group">
@@ -20,7 +30,7 @@
             </div>
         </div>
 
-        <button type="submit">Gerar Chaves</button>
+        <button type="submit">Generate Key</button>
     </form>
 
     @if (ViewBag.Message != null)
@@ -28,12 +38,12 @@
         <div class="alert alert-info mt-3">@ViewBag.Message</div>
     }
 
-    /* Imprimir a chave privada decifrada para teste */
+    /* print decrypted private key for test */
 
     @if (ViewBag.DecryptedPrivateKey != null)
     {
         <div class="alert alert-success mt-3">
-            <strong>Chave Privada Decifrada:</strong>
+            <strong>Decrypted Private Key:</strong>
             <pre>@ViewBag.DecryptedPrivateKey</pre>
         </div>
     }
@@ -41,7 +51,7 @@
     @if (ViewBag.DecryptedPublicKey != null)
     {
         <div class="alert alert-success mt-3">
-            <strong>Chave Pública Decifrada:</strong>
+            <strong>Decrypted Public Key:</strong>
             <pre>@ViewBag.DecryptedPublicKey</pre>
         </div>
     }
