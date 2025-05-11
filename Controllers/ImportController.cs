@@ -46,7 +46,7 @@ namespace OpenSign.Controllers
 
                 // Limpar o arquivo temporário
                 System.IO.File.Delete(tempFilePath);
-
+    
                 ViewBag.Message = "Secret Key decifrada com sucesso!";
                 ViewBag.DecryptedPrivateKey = decryptedPrivateKey;
             }

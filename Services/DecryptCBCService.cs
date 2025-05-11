@@ -12,12 +12,12 @@ namespace OpenSign.Services
         {
             try
             {
-                // Read and parse JSON
+                // Lê o ficheiro .json
                 string jsonContent = File.ReadAllText(jsonFilePath);
                 var jsonData = JsonSerializer.Deserialize<JsonData>(jsonContent) ??
                     throw new InvalidOperationException("Invalid JSON format");
 
-                // Convert from Base64
+                // Conversão para Base64
                 byte[] encryptedData = Convert.FromBase64String(jsonData.EncryptedSecretKey!);
                 byte[] iv = Convert.FromBase64String(jsonData.Iv!);
                 byte[] salt = Convert.FromBase64String(jsonData.Salt!);
@@ -26,7 +26,7 @@ namespace OpenSign.Services
                 if (cipherMode.ToLower() != "aes-256-cbc")
                     throw new NotSupportedException($"Cipher mode '{cipherMode}' is not supported yet.");
 
-                // Derive key manually (same as DerivationService, but local)
+                // Deriva a chave a partir da password
                 int num_iter = 100000;
                 using var rfcDerive = new Rfc2898DeriveBytes(rawPassword, salt, num_iter, HashAlgorithmName.SHA256);
                 byte[] key = rfcDerive.GetBytes(32);
