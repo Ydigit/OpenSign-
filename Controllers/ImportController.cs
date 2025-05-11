@@ -49,6 +49,7 @@ namespace OpenSign.Controllers
     
                 ViewBag.Message = "Secret Key decifrada com sucesso!";
                 ViewBag.DecryptedPrivateKey = decryptedPrivateKey;
+
             }
             catch (Exception ex)
             {

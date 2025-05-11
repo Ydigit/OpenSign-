@@ -1,7 +1,6 @@
 @{
     ViewData["Title"] = "Importar Chave Privada";
 }
-
 <div id="particles-js"></div>
 
 <div class="container mt-4">
@@ -29,14 +28,19 @@
         <div class="alert alert-info mt-3">@ViewBag.Message</div>
     }
 
-    @if (ViewBag.PrivateKey != null && ViewBag.PublicKey != null)
+    @if (ViewBag.DecryptedPrivateKey != null)
     {
-        <div class="mt-4">
-            <h3>Chave Privada:</h3>
-            <pre>@ViewBag.PrivateKey</pre>
+        <div class="alert alert-success mt-3">
+            <strong>Chave Privada Decifrada:</strong>
+            <pre>@ViewBag.DecryptedPrivateKey</pre>
+        </div>
+    }
 
-            <h3>Chave Pública:</h3>
-            <pre>@ViewBag.PublicKey</pre>
+    @if (ViewBag.DecryptedPublicKey != null)
+    {
+        <div class="alert alert-success mt-3">
+            <strong>Chave Pública Decifrada:</strong>
+            <pre>@ViewBag.DecryptedPublicKey</pre>
         </div>
     }
 </div>
