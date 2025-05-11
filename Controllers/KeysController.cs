@@ -41,20 +41,11 @@ namespace OpenSign.Controllers
             //    return View();
             //}
 
-            // Use reflection to access private method GenerateRSAKeyPair
-            _keyService.GetType()
-                .GetMethod("GenerateRSAKeyPair", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?
-                .Invoke(_keyService, new object[] { keySize, encmode });
+            string jsonPath = _keyService.GenerateRSAKeyPairJSON(keySize, pss, encmode);
 
-            var keys = _keyService.GetCurrentKeys();
 
-            //depois dele encryptar ta tudo no disco
-            //meter no disco o salt e o iv mas so em memoria
-            string saltPath = AppPaths.GetKeyPathPEM($"private_{dateTicks}.salt");
-            //escrever
+            return PhysicalFile(jsonPath, "application/json", Path.GetFileName(jsonPath));
 
-            ViewBag.PublicKey = keys.GetType().GetProperty("PublicKey")?.GetValue(keys);
-            ViewBag.PrivateKey = keys.GetType().GetProperty("PrivateKey")?.GetValue(keys);
 
             TempData["Success"] = $"Chaves {encmode.ToUpper()} de {keySize} bits geradas com sucesso.";
             return View();

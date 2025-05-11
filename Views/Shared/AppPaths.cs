@@ -16,13 +16,9 @@ namespace OpenSign.Shared
         {
             return Path.Combine(KeysPathpub, $"{fileName}.pem");
         }
-        public static string SecurePrivateBackupPathKEY(string fileName)
-        {
-            return Path.Combine(KeysPathpriv, $"{fileName}.enc");
-        }
         public static string SecurePrivateBackupPathJSON(string fileName)
         {
-            return Path.Combine(KeysPathpriv, $"{fileName}.json");
+            return Path.Combine(SecurePrivateBackupPath, $"{fileName}.json");
         }
 
         //-----------------------------------
@@ -34,5 +30,5 @@ namespace OpenSign.Shared
             return Path.Combine(KeysPath, $"{fileName}");
         }
 }
-    S
+
 }

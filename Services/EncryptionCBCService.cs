@@ -5,7 +5,7 @@ using System.Text;
 
 public class EncryptionCBCService
 {
-    public (byte[] EncryptedPrivateKey, byte[] cbcIv) EncryptCBC(string data, byte[] key)//key ja e derivada
+    public (byte[] EncryptedData, byte[] Iv) EncryptCBC(string data, byte[] key)//key ja e derivada
     {
         using (var aes = Aes.Create())//depois do using ele vai remover o obj instanciado aes
         {
@@ -17,7 +17,7 @@ public class EncryptionCBCService
             {
                 byte[] dataBytes = Encoding.UTF8.GetBytes(data);//parsing
                 byte[] encryptSK = encryptor.TransformFinalBlock(dataBytes, 0, dataBytes.Length);
-                return ( encryptor.TransformFinalBlock(dataBytes, 0, dataBytes.Length), aes.IV);
+                return (encryptSK, aes.IV);
             }
         }
     }

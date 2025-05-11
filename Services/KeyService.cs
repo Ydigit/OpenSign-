@@ -1,8 +1,10 @@
 using System;
 using System.IO;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Security.Policy;
 using System.Text;
+using System.Text.Json;
 using OpenSign.Shared;
 
 public class KeyService
@@ -22,12 +24,14 @@ public class KeyService
     /// arquivos XML existentes.
     /// </para>
     /// </summary>
-    public void InitializeKeys(int keySize, string format)
+    /// 
+    //meter a rawpass
+    public void InitializeKeys(int keySize, string rawpass, string format)
     {
         if (keySize == 2048 || keySize == 3072 || keySize == 4096)
         {
             //Based on settings defined by the user, internal vars get the actual values for this void callback
-            GenerateKeys(keySize, format);
+            GenerateKeys(keySize,rawpass,format);
         }
         else
         {
@@ -35,9 +39,9 @@ public class KeyService
         }
     }
     //Gerar as Keys
-    public void GenerateKeys(int keySize,string format)
+    public void GenerateKeys(int keySize, string rawpass, string format)
     {
-        GenerateRSAKeyPair(keySize, format);
+        GenerateRSAKeyPairJSON(keySize,rawpass, format);
     }
 
     /// <summary>
@@ -48,13 +52,12 @@ public class KeyService
     //mediante o modo ele escolhe a cifra
 
 
-    private void GenerateRSAKeyPairPEM(int keySize, byte[] derivekey, ) // meter sempre pem
+    public string GenerateRSAKeyPairJSON(int keySize, string rawpass, string format) // meter sempre pem
     {
         //prepare paths for the file location
         string dateTicks = DateTime.Now.Ticks.ToString();//momento de geracao
         string pubfilePath = null;
-        string privfilePath = null;
-        string ivPath = null;
+        string jsonfilePath = null;//tirar
 
 
         using (var rsa = RSA.Create())
@@ -65,25 +68,45 @@ public class KeyService
                     _privateKey = ExportPrivateKeyPEM(rsa); //ta em memo aqui a pk
                     //file paths
                      pubfilePath = AppPaths.GetKeyPathPEMpublic($"pk-{dateTicks}");
-                     privfilePath = AppPaths.SecurePrivateBackupPathKEY($"sk-{dateTicks}");
-                     //ivPath = AppPaths.GetKeyPathGeneral($"iv-{dateTicks}.iv");
-                     //Check if the directory exists, if not create it
-                     if (!System.IO.Directory.Exists(AppPaths.KeysPath))
-                     {
-                                System.IO.Directory.CreateDirectory(AppPaths.KeysPath);
-                     }
+                     //tira o da key
+                     jsonfilePath = AppPaths.SecurePrivateBackupPathJSON($"skFile-{dateTicks}");
+                    //Check if the directory exists, if not create it
+                    string directory = Path.GetDirectoryName(pubfilePath)!;
+                    if (!Directory.Exists(directory))
+                    {
+                        Directory.CreateDirectory(directory);
+                    }
 
-                    //guardar a chave publica
-                    System.IO.File.WriteAllBytes(pubfilePath,_publicKey);
-                    //chamar derivado é no controller
-                    
-                    //cifrar e guardar cifrado, cifra com o derivekey
-                    var encryptionService = new EncryptionCBCService();
-                    //cifrar a chave privada
-                    var result = encryptionService.EncryptCBC(_privateKey, derivekey);//tupl com a cifra e iv
-                    //guardar chave cifrada , 
-                    File.WriteAllBytes(privfilePath, result.EncryptedData);
-                    File.WriteAllBytes(ivPath, result.Iv);
+                    var deriveService = new DerivationService();
+                    var passderivada = DerivationService.DeriveKey(rawpass); // sem new DerivationService()
+
+                    var passwordDerivada = passderivada.Kderivada;
+                    var salt = passderivada.salt;
+
+                    //guardar a chave publica 
+                    File.WriteAllText(pubfilePath, _publicKey);
+
+            //cifrar e guardar cifrado, cifra com o derivekey
+            var encryptionService = new EncryptionCBCService();
+                    //cifrar a chave privada- DONE
+                    var result = encryptionService.EncryptCBC(_privateKey, passwordDerivada);//tupl com a cifra e iv
+                    var cbcIv = result.Iv;
+                    var encsk = result.EncryptedData;
+            //declarar o JSON
+            var jsonDownload = new
+            {
+                EncryptedSecretKey = Convert.ToBase64String(encsk),
+                Iv = Convert.ToBase64String(cbcIv),
+                Salt = Convert.ToBase64String(salt),
+                CipherMode = format
+            };
+
+            string jsonDownloadString = JsonSerializer.Serialize(jsonDownload);
+            //guardar o JSON
+            File.WriteAllText(jsonfilePath, jsonDownloadString);//escreve em string o json
+
+            return jsonfilePath;
+
         }
     }
 
