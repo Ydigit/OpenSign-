@@ -20,15 +20,16 @@ public class DerivationService{
     * function that derivates the hash key from password 
     * @param password -> password introduced by the user 
     */
-    public static byte[] DeriveKey(string password){
+    public static (byte[] Kderivada, byte[] salt) DeriveKey(string password){
 
-        byte[] salt = genSalt(16);
+        byte[] salt = genSalt(16);//16 bytes?
 
         int num_iter = 100000;
     
         Rfc2898DeriveBytes password_derived = new Rfc2898DeriveBytes(password, salt, num_iter, HashAlgorithmName.SHA256);
-
-        return password_derived.GetBytes(256);
+        //correcao do rafa, tinha 256, mas tem de ser o numero de bytes nao de bits
+        //depois de gerar o derivado em bytes, retiramos os bytes da propria chave ja derivada
+        return (password_derived.GetBytes(32), salt);
     
     }
     

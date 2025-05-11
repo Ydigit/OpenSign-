@@ -1,14 +1,16 @@
 using System;
 using System.IO;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Security.Policy;
 using System.Text;
+using System.Text.Json;
 using OpenSign.Shared;
 
 public class KeyService
 {
-    private string _publicKey = string.Empty;
-    private string _privateKey = string.Empty;
+    private string _publicKey = string.Empty; //direta no disco
+    private string _privateKey = string.Empty; //cifrar e guardar no disco
     private string _keyCreationDate = string.Empty;
 
     /// <summary>
@@ -22,74 +24,100 @@ public class KeyService
     /// arquivos XML existentes.
     /// </para>
     /// </summary>
-    public void InitializeKeys(int keySize, string format)
+    /// 
+    //meter a rawpass
+    public void InitializeKeys(int keySize, string rawpass, string format)
     {
         if (keySize == 2048 || keySize == 3072 || keySize == 4096)
         {
             //Based on settings defined by the user, internal vars get the actual values for this void callback
-            GenerateKeys(keySize, format);
+            GenerateKeys(keySize,rawpass,format);
         }
         else
         {
             LoadKeysFromFiles();
         }
     }
-
-    public void GenerateKeys(int keySize,string format)
+    //Gerar as Keys
+    public void GenerateKeys(int keySize, string rawpass, string format)
     {
-        GenerateRSAKeyPair(keySize, format);
+        GenerateRSAKeyPairJSON(keySize,rawpass, format);
     }
 
     /// <summary>
     /// Generates RSA keys based on the specified key size and format.
     /// </summary>
-    private void GenerateRSAKeyPair(int keySize, string format)
+    /// 
+    //meter : iv, salt, pk, skc, modo
+    //mediante o modo ele escolhe a cifra
+
+
+    public string GenerateRSAKeyPairJSON(int keySize, string rawpass, string format) // meter sempre pem
     {
         //prepare paths for the file location
-        string dateTicks = DateTime.Now.Ticks.ToString();
+        string dateTicks = DateTime.Now.Ticks.ToString();//momento de geracao
         string pubfilePath = null;
-        string privfilePath = null;
+        string jsonfilePath = null;//tirar
 
-        
-            using (var rsa = RSA.Create())
-            {
+
+        using (var rsa = RSA.Create())
+        {
                 rsa.KeySize = keySize;
-
-                if (format == "pem")
-                {
                     //rsa values
                     _publicKey = ExportPublicKeyPEM(rsa);
-                    _privateKey = ExportPrivateKeyPEM(rsa);
-                    //file pathsW
-                     pubfilePath = AppPaths.GetKeyPathPEM($"public_{dateTicks}");
-                     privfilePath = AppPaths.GetKeyPathPEM($"private_{dateTicks}");
-                    //Check if the directory exists, if not create it
-                    if (!System.IO.Directory.Exists(AppPaths.KeysPath))
-                    {
-                        System.IO.Directory.CreateDirectory(AppPaths.KeysPath);
-                    }
-                    //write the keys to the files
-                    System.IO.File.WriteAllText(pubfilePath, _publicKey);
-                    System.IO.File.WriteAllText(privfilePath, _privateKey);
-                }
-                else // xml
-                {
-                    _publicKey = rsa.ToXmlString(false); // public only
-                    _privateKey = rsa.ToXmlString(true);  // public + private
-
+                    _privateKey = ExportPrivateKeyPEM(rsa); //ta em memo aqui a pk
                     //file paths
-                    pubfilePath = AppPaths.GetKeyPathXML($"public_{dateTicks}");
-                    privfilePath = AppPaths.GetKeyPathXML($"private_{dateTicks}");
+                     pubfilePath = AppPaths.GetKeyPathPEMpublic($"pk-{dateTicks}");
+                     //tira o da key
+                     jsonfilePath = AppPaths.SecurePrivateBackupPathJSON($"skFile-{dateTicks}");
                     //Check if the directory exists, if not create it
-                    if (!System.IO.Directory.Exists(AppPaths.KeysPath))
+                    string directory = Path.GetDirectoryName(pubfilePath)!;
+                    if (!Directory.Exists(directory))
                     {
-                        System.IO.Directory.CreateDirectory(AppPaths.KeysPath);
+                        Directory.CreateDirectory(directory);
                     }
-                    //write the keys to the files
-                    System.IO.File.WriteAllText(pubfilePath, _publicKey);
-                    System.IO.File.WriteAllText(privfilePath, _privateKey);
+
+                    var deriveService = new DerivationService();
+                    var passderivada = DerivationService.DeriveKey(rawpass); // sem new DerivationService()
+
+                    var passwordDerivada = passderivada.Kderivada;
+                    var salt = passderivada.salt;
+
+                    //guardar a chave publica 
+                    File.WriteAllText(pubfilePath, _publicKey);
+
+            //cifrar e guardar cifrado, cifra com o derivekey
+            var encryptionService = new EncryptionCBCService();
+                    //cifrar a chave privada- DONE
+                    var result = encryptionService.EncryptCBC(_privateKey, passwordDerivada);//tupl com a cifra e iv
+                    var cbcIv = result.Iv;
+                    var encsk = result.EncryptedData;
+            //declarar o JSON
+            var jsonDownload = new
+            {
+                EncryptedSecretKey = Convert.ToBase64String(encsk),
+                Iv = Convert.ToBase64String(cbcIv),
+                Salt = Convert.ToBase64String(salt),
+                CipherMode = format
+            };
+
+            
+
+
+            string jsonDownloadString = JsonSerializer.Serialize(jsonDownload);
+            // Verifica se a pasta securekeys/private existe
+            string privateDirectory = Path.GetDirectoryName(jsonfilePath)!;
+            if (!Directory.Exists(privateDirectory))
+            {
+                Directory.CreateDirectory(privateDirectory);
             }
-            }
+
+            //guardar o JSON
+            File.WriteAllText(jsonfilePath, jsonDownloadString);//escreve em string o json
+
+            return jsonfilePath;
+
+        }
     }
 
     /// <summary>

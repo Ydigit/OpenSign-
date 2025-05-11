@@ -1,66 +1,74 @@
-// funcao de decifra do dinis
-
 using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using Newtonsoft.Json;
+using System.Text.Json;
 
-public class DecryptCBCService
+namespace OpenSign.Services
 {
-    private class EncryptionData
+    public class DecryptCBCService
     {
-        public string EncryptedKey { get; set; }
-        public string IV { get; set; }
-        public string Method { get; set; }
-        public string Salt { get; set; }
-    }
-
-    public string DecryptRsaKeyFromJson(string jsonFilePath, string password)
-    {
-        // Ler e parsear o ficheiro JSON
-        var json = File.ReadAllText(jsonFilePath);
-        var data = JsonConvert.DeserializeObject<EncryptionData>(json);
-
-        // Validar o método de cifra
-        if (data.Method?.ToLower() != "aes-256-cbc")
+        public string DecryptPrivateKeyFromJson(string jsonFilePath, string rawPassword)
         {
-            throw new InvalidOperationException($"Método de cifra não suportado: {data.Method}");
+            try
+            {
+                // Read and parse JSON
+                string jsonContent = File.ReadAllText(jsonFilePath);
+                var jsonData = JsonSerializer.Deserialize<JsonData>(jsonContent) ??
+                    throw new InvalidOperationException("Invalid JSON format");
+
+                // Convert from Base64
+                byte[] encryptedData = Convert.FromBase64String(jsonData.EncryptedSecretKey!);
+                byte[] iv = Convert.FromBase64String(jsonData.Iv!);
+                byte[] salt = Convert.FromBase64String(jsonData.Salt!);
+                string cipherMode = jsonData.CipherMode ?? "aes-256-cbc";
+
+                if (cipherMode.ToLower() != "aes-256-cbc")
+                    throw new NotSupportedException($"Cipher mode '{cipherMode}' is not supported yet.");
+
+                // Derive key manually (same as DerivationService, but local)
+                int num_iter = 100000;
+                using var rfcDerive = new Rfc2898DeriveBytes(rawPassword, salt, num_iter, HashAlgorithmName.SHA256);
+                byte[] key = rfcDerive.GetBytes(32);
+
+                if (key.Length != 32)
+                    throw new ArgumentException($"Invalid key size. Expected 32 bytes, got {key.Length}");
+
+                using (var aes = Aes.Create())
+                {
+                    aes.Key = key;
+                    aes.IV = iv;
+                    aes.Mode = CipherMode.CBC;
+                    aes.Padding = PaddingMode.PKCS7;
+
+                    using (var decryptor = aes.CreateDecryptor())
+                    using (var ms = new MemoryStream(encryptedData))
+                    using (var cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read))
+                    using (var sr = new StreamReader(cs))
+                    {
+                        return sr.ReadToEnd();
+                    }
+                }
+            }
+            catch (CryptographicException ex)
+            {
+                throw new CryptographicException("Decryption failed - likely wrong password", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Decryption error", ex);
+            }
+
+            
+
         }
 
-        // Converter de Base64 para bytes
-        byte[] encryptedKeyBytes = Convert.FromBase64String(data.EncryptedKey);
-        byte[] ivBytes = Convert.FromBase64String(data.IV);
-        byte[] saltBytes = Convert.FromBase64String(data.Salt);
-
-        // Derivar a chave usando a password e o salt do JSON
-        byte[] keyBytes = DeriveKeyWithSalt(password, saltBytes);
-
-        // Descriptografar
-        using var aes = Aes.Create();
-        aes.Key = keyBytes;
-        aes.IV = ivBytes;
-        aes.Mode = CipherMode.CBC;
-        aes.Padding = PaddingMode.PKCS7;
-
-        using var decryptor = aes.CreateDecryptor();
-        using var msDecrypt = new MemoryStream(encryptedKeyBytes);
-        using var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
-        using var srDecrypt = new StreamReader(csDecrypt);
-        
-        return srDecrypt.ReadToEnd();
-    }
-
-    private byte[] DeriveKeyWithSalt(string password, byte[] salt)
-    {
-        int iterations = 100000; // Mesmo número usado na cifra
-        
-        using var pbkdf2 = new Rfc2898DeriveBytes(
-            password: password,
-            salt: salt,
-            iterations: iterations,
-            hashAlgorithm: HashAlgorithmName.SHA256);
-            
-        return pbkdf2.GetBytes(32); // 32 bytes = 256 bits para AES-256
+        private class JsonData
+        {
+            public string? EncryptedSecretKey { get; set; }
+            public string? Iv { get; set; }
+            public string? Salt { get; set; }
+            public string? CipherMode { get; set; }
+        }
     }
 }
