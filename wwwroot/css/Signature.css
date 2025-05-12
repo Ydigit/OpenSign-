@@ -1,0 +1,16 @@
+#particles-js {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, #45484a, #2e3338, #2a3b4a);
+    z-index: -1;
+}
+
+.content {
+    position: relative;
+    color: white;
+    text-align: center;
+    margin-top: 10%;
+}

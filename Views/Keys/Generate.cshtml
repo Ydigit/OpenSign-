@@ -34,11 +34,15 @@
 
 
     <button type="submit">Generate Keys</button>
-    
-    <div>
-        <label for="">After Generating Import Already </label>
-    </div>
 </form>
+
+<div class="text-center content">
+    <p><strong>If you want to import generated keys</strong></p>
+
+    <p class="mt-4">
+        <a class="btn btn-warning btn-lg" href="/Import"> Import Key Page</a>
+    </p>
+</div>
 
 
 @if (TempData["Error"] != null)

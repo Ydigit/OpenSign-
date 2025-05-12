@@ -1,0 +1,35 @@
+@{
+    ViewData["Title"] = "Signature Page";
+}
+<div id="particles-js"></div>
+
+<div class="text-center content">
+    <h1 class="display-4">Sign Document</h1>
+</div>
+
+
+<!-- Mensagens com Bootstrap Alerts  -->
+@if (TempData["Success"] != null)
+{
+<div class="alert alert-success alert-dismissible fade show text-center mt-3" role="alert">
+    @TempData["Success"]
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+}
+
+@if (TempData["Error"] != null)
+{
+<div class="alert alert-danger alert-dismissible fade show text-center mt-3" role="alert">
+    @TempData["Error"]
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Signature.css" />
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="~/js/site.js"></script>
+}

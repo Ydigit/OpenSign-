@@ -33,12 +33,17 @@
         <button type="submit">Generate Key</button>
     </form>
 
+    <div class="text-center content">
+        <p><strong>If you want to sign documents</strong></p>
+        <p class="mt-4">
+            <a class="btn btn-warning btn-lg" href="/Signature"> Signature Page</a>
+        </p>
+    </div>
+
     @if (ViewBag.Message != null)
     {
         <div class="alert alert-info mt-3">@ViewBag.Message</div>
     }
-
-    /* print decrypted private key for test */
 
     @if (ViewBag.DecryptedPrivateKey != null)
     {
@@ -56,6 +61,23 @@
         </div>
     }
 </div>
+
+<!-- Mensagens com Bootstrap Alerts  -->
+@if (TempData["Success"] != null)
+{
+<div class="alert alert-success alert-dismissible fade show text-center mt-3" role="alert">
+    @TempData["Success"]
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+}
+
+@if (TempData["Error"] != null)
+{
+<div class="alert alert-danger alert-dismissible fade show text-center mt-3" role="alert">
+    @TempData["Error"]
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+}
 
 @section Styles {
     <link rel="stylesheet" href="~/css/Import.css" />
