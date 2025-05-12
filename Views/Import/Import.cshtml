@@ -8,18 +8,8 @@
     <form asp-controller="Import" asp-action="Decifrar" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label for="keyFile">Encrypted Key File (.json)</label>
-            <input type="file" class="form-control d-none" id="keyFile" name="keyFile" onchange="updateFileName(this)" required>
-            <div class="input-group">
-                <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('keyFile').click()">Choose file</button>
-                <span class="form-control" id="fileLabel">No file chosen</span>
-            </div>
+            <input type="file" name="keyFile"class="form-control" required />
         </div>
-        <script>
-            function updateFileName(input) {
-                const label = document.getElementById('fileLabel');
-                label.textContent = input.files[0]?.name || 'No file chosen';
-            }
-        </script>
         <div>
             <label for="pss">Password for Key Encryption</label>
             <div class="input-group">
