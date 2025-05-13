@@ -53,14 +53,22 @@ form {
 
     form button {
         background-color: #ffd700;
-        color: white;
+        color: black;
         border: none;
         cursor: pointer;
     }
 
         form button:hover {
             background-color: #9c9c16;
+            color: white;
         }
+
+.content{
+    position: relative;
+    color: white;
+    text-align: center;
+    margin-top: 10%;
+}
 
 h2 {
     text-align: center;
@@ -94,7 +102,7 @@ pre {
 }
 
 .input-group .btn {
-    width: auto; /* Ajusta o botão para ter largura automática */
-    padding: 0.375rem 0.75rem; /* Ajusta o espaçamento interno */
-    margin-left: 5px; /* Adiciona um pequeno espaço entre o botão e o campo */
+    width: auto; /* Ajusta o botï¿½o para ter largura automï¿½tica */
+    padding: 0.375rem 0.75rem; /* Ajusta o espaï¿½amento interno */
+    margin-left: 5px; /* Adiciona um pequeno espaï¿½o entre o botï¿½o e o campo */
 }

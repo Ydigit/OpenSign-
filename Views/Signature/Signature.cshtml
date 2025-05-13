@@ -1,24 +1,12 @@
 @{
-    Layout = "_Layout";
-    ViewData["Title"] = "Sign Page";
+    ViewData["Title"] = "Signature Page";
 }
-
-
-
 <div id="particles-js"></div>
 
 <div class="text-center content">
-    <h1 class="display-4">Sign with OpenSign</h1>
-    <p>Learn more about <a href="https://learn.microsoft.com/aspnet/core">ASP.NET Core</a> and <strong>criptography</strong>.</p>
-
-    <!-- Botao para gerar chaves -->
-    <p class="mt-4">
-        <a class="btn btn-warning btn-lg" href="/Generate"> Generate RSA Keys</a>
-    </p>
-    <p class="mt-4">
-        <a class="btn btn-warning btn-lg" href="/Import"> Import RSA Keys</a>
-    </p>
+    <h1 class="display-4">Sign Document</h1>
 </div>
+
 
 <!-- Mensagens com Bootstrap Alerts  -->
 @if (TempData["Success"] != null)
@@ -37,9 +25,8 @@
 </div>
 }
 
-@section Styles{
-    <link rel="stylesheet" , href="~/css/SignView.css" />
-
+@section Styles {
+    <link rel="stylesheet" href="~/css/Signature.css" />
 }
 
 @section Scripts {

@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "Gerar Chaves";
+    ViewData["Title"] = "Generate Keys";
 }
 
 <h2>@ViewData["Title"]</h2>
@@ -33,8 +33,17 @@
     </div>
 
 
-    <button type="submit">Gerar Chaves</button>
+    <button type="submit">Generate Keys</button>
 </form>
+
+<div class="text-center content">
+    <p><strong>If you want to import generated keys</strong></p>
+
+    <p class="mt-4">
+        <a class="btn btn-warning btn-lg" href="/Import"> Import Key Page</a>
+    </p>
+</div>
+
 
 @if (TempData["Error"] != null)
 {
