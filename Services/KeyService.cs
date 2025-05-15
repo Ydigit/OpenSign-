@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography.Xml;
 using System.Security.Policy;
 using System.Text;
 using System.Text.Json;
@@ -38,7 +39,7 @@ public class KeyService
             LoadKeysFromFiles();
         }
     }
-    //Gerar as Keys
+    //Gerar as KeysF
     public void GenerateKeys(int keySize, string rawpass, string format)
     {
         GenerateRSAKeyPairJSON(keySize,rawpass, format);
@@ -52,12 +53,15 @@ public class KeyService
     //mediante o modo ele escolhe a cifra
 
 
-    public string GenerateRSAKeyPairJSON(int keySize, string rawpass, string format) // meter sempre pem
+    public string GenerateRSAKeyPairJSON(int keySize, string rawpass, string encmode) // meter sempre pem
     {
         //prepare paths for the file location
         string dateTicks = DateTime.Now.Ticks.ToString();//momento de geracao
         string pubfilePath = null;
         string jsonfilePath = null;//tirar
+        EncryptionCBCService? encryptionServiceCBC = null;
+        EncryptionCTRService? encryptionServiceCTR = null;
+        object? jsonDownload = null;
 
 
         using (var rsa = RSA.Create())
@@ -82,25 +86,50 @@ public class KeyService
                     var passderivada = DerivationService.DeriveKey(rawpass); // sem new DerivationService()
 
                     var passwordDerivada = passderivada.Kderivada;
+                    //**********+//ERRO da geracao random****************
                     var salt = passderivada.salt;
 
                     //guardar a chave publica 
                     File.WriteAllText(pubfilePath, _publicKey);
+            //Ate aqui gera as chaves
 
-            //cifrar e guardar cifrado, cifra com o derivekey
-            var encryptionService = new EncryptionCBCService();
-                    //cifrar a chave privada- DONE
-                    var result = encryptionService.EncryptCBC(_privateKey, passwordDerivada);//tupl com a cifra e iv
-                    var cbcIv = result.Iv;
-                    var encsk = result.EncryptedData;
-            //declarar o JSON
-            var jsonDownload = new
+            if (encmode.Equals("aes-256-cbc"))
             {
-                EncryptedSecretKey = Convert.ToBase64String(encsk),
-                Iv = Convert.ToBase64String(cbcIv),
-                Salt = Convert.ToBase64String(salt),
-                CipherMode = format
-            };
+                encryptionServiceCBC = new EncryptionCBCService();
+                var result = encryptionServiceCBC.EncryptCBC(_privateKey, passwordDerivada);//tupl com a cifra e iv
+                var cbcIv = result.Iv;
+                var encsk = result.EncryptedData;
+                //json pra decifrar: cippher, iv, salt, cipherMode
+                jsonDownload = new
+                {
+                    EncryptedSecretKey = Convert.ToBase64String(encsk),
+                    Iv = Convert.ToBase64String(cbcIv),
+                    Salt = Convert.ToBase64String(salt),
+                    CipherMode = encmode
+                };
+
+            }
+            else if(encmode.Equals("aes-256-ctr"))
+            {
+                encryptionServiceCTR = new EncryptionCTRService();
+                var result = encryptionServiceCTR.EncryptCTR(_privateKey, passwordDerivada);
+                var ctrNounce = result.nonce;
+                var encsk = result.EncryptedPrivateKey;
+                //json pra decifrar: cipher, nounce, salt, cipherMode
+                jsonDownload = new
+                {
+                    EncryptedSecretKey = Convert.ToBase64String(encsk),
+                    Nounce = Convert.ToBase64String(ctrNounce),
+                    Salt = Convert.ToBase64String(salt),
+                    CipherMode = encmode
+                };
+            }
+            else
+            {
+                throw new ArgumentException("Invalid encryption mode.");
+            }
+
+            
 
             
 

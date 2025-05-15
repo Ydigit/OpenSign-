@@ -9,7 +9,7 @@ using System.Text;
 
 public class EncryptionCTRService
 {
-    public (byte[] EncryptedPrivateKey, byte[]nonce) Encrypt (string data,byte[] key)
+    public (byte[] EncryptedPrivateKey, byte[]nonce) EncryptCTR (string data,byte[] key)
     {
         using(var aes = Aes.Create())
         {
