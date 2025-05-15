@@ -1,14 +1,16 @@
+@model OpenSign.Models.DocumentCreateModel
+
+
 @{
-    ViewData["Title"] = "Signature Page";
+    ViewData["Title"] = "Create Document";
 }
 <div id="particles-js"></div>
 
 <div class="text-center content">
-    <h1 class="display-4">Sign Document</h1>
+    <h1 class="display-4">Create New Document</h1>
+    <p class="lead">Write the document and define placeholders for fields.</p>
 </div>
 
-
-<!-- Mensagens com Bootstrap Alerts  -->
 @if (TempData["Success"] != null)
 {
 <div class="alert alert-success alert-dismissible fade show text-center mt-3" role="alert">
@@ -24,6 +26,31 @@
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 }
+
+<div class="container mt-4">
+    <form asp-controller="Document" asp-action="CreateDocument" method="post">
+        <div class="mb-3">
+            <label for="DocumentText" class="form-label"><strong>Document Text</strong></label>
+            <textarea class="form-control" id="DocumentText" name="DocumentText" rows="10" placeholder="Exemplo: Contrato de renda...\nNúmero de Quartos: [PLACEHOLDER_NQUARTOS]\nNome do Inquilino: [TEXTO_LIVRE]" required></textarea>
+            <small class="form-text text-muted">Use [PLACEHOLDER_NAME] para múltipla escolha e [TEXTO_LIVRE] para campos livres.</small>
+        </div>
+
+        <div class="mb-3">
+            <label for="Password" class="form-label"><strong>Password to Encrypt Private Key</strong></label>
+            <input type="password" class="form-control" id="Password" name="Password" placeholder="Enter secure password..." required />
+        </div>
+
+        <div class="mb-3">
+            <label for="EncryptionMode" class="form-label"><strong>Encryption Mode for Private Key</strong></label>
+            <select class="form-select" id="EncryptionMode" name="EncryptionMode">
+                <option value="aes-256-cbc">AES-256-CBC (recommended)</option>
+                <option value="aes-256-ctr">AES-256-CTR</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg w-100">Generate Document + Signatures</button>
+    </form>
+</div>
 
 @section Styles {
     <link rel="stylesheet" href="~/css/Signature.css" />
