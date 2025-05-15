@@ -38,7 +38,7 @@ public class EncryptionCTRService
                     }
                     IncrementCounter(counterBlock,8);//8 para comecar a incrementar após nonce
                 }
-                return(cypherBytes,nonce);
+                return(cypherBytes, nonce);
             }
         }
     }

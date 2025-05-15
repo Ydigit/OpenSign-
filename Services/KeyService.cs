@@ -119,7 +119,7 @@ public class KeyService
                 jsonDownload = new
                 {
                     EncryptedSecretKey = Convert.ToBase64String(encsk),
-                    Nounce = Convert.ToBase64String(ctrNounce),
+                    Nonce = Convert.ToBase64String(ctrNounce),
                     Salt = Convert.ToBase64String(salt),
                     CipherMode = encmode
                 };

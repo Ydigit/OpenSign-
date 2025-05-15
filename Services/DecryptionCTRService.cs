@@ -25,6 +25,7 @@ public class DecryptionCTRService
 
             // Deriva a chave a partir da password
             int num_iter = 100000;
+            //+++++++++++//tem que se reutilizar a func ddo rafa++++++++++++++
             using var rfcDerive = new Rfc2898DeriveBytes(rawPassword, salt, num_iter, HashAlgorithmName.SHA256);
             byte[] key = rfcDerive.GetBytes(32); //AES-256 = 32 bytes
             
@@ -39,10 +40,12 @@ public class DecryptionCTRService
             byte[] decryptedBytes = new byte[encryptedData.Length];
 
             using var encryptor = aes.CreateEncryptor();
-            
+
             for (int i = 0; i < encryptedData.Length; i += 16)
             {
-                byte[] keyStream = encryptor.TransformFinalBlock(counterBlock, 0, 16);
+                byte[] keyStream = new byte[16];
+                encryptor.TransformBlock(counterBlock, 0, 16, keyStream, 0); // Use TransformBlock
+
                 int blockSize = Math.Min(16, encryptedData.Length - i);
 
                 for (int j = 0; j < blockSize; j++)
@@ -51,6 +54,7 @@ public class DecryptionCTRService
                 }
                 IncrementCounter(counterBlock, 8);
             }
+
             return Encoding.UTF8.GetString(decryptedBytes);
         }catch(CryptographicException ex)
         {
