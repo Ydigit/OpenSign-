@@ -70,7 +70,6 @@ public class KeyService
                     //rsa values
                     _publicKey = ExportPublicKeyPEM(rsa);
                     _privateKey = ExportPrivateKeyPEM(rsa); //ta em memo aqui a pk
- 
                     //file paths
                      pubfilePath = AppPaths.GetKeyPathPEMpublic($"pk-{dateTicks}");
                      //tira o da key
