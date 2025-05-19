@@ -10,7 +10,7 @@
 
 .content {
     position: relative;
-    color: white;
+    color: #ffd700;
     text-align: left;
     margin: 60px 40px 0 40px;
     font-size: 2.5rem;
@@ -31,7 +31,7 @@ html, body {
 .about-wrapper {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center; /* Alinha verticalmente */
     gap: 80px;
     padding: 40px;
     max-width: 1400px;
@@ -95,8 +95,8 @@ html, body {
 
 /* BACK */
 .flip-back {
-    background-color: rgba(0, 0, 0, 0.85);
-    color: white;
+    background-color: #ffd700;
+    color: black;
     transform: rotateY(180deg);
     display: flex;
     justify-content: center;
