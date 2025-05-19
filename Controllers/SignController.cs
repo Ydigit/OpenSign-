@@ -1,3 +1,4 @@
+//Queres gerar chaves ou criar o doc, ja com chaves
 using Microsoft.AspNetCore.Mvc;
 
 namespace OpenSign.Controllers

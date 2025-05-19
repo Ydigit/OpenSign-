@@ -6,12 +6,13 @@ using System.Text.RegularExpressions;
 
 namespace PlaceholderTextApp.Controllers
 {
+    [Route("CreateDocument")]
     public class CreateDocumentController : Controller
     {
         [HttpGet]
-        public IActionResult CreateDoc()
+        public IActionResult CreateDocument()
         {
-            return View("~/Views/CreateDocument/CreateDoc.cshtml");
+            return View();
         }
 
         [HttpPost]
