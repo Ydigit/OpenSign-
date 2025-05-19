@@ -2,6 +2,8 @@
     ViewData["Title"] = "Gerar JSON com Assinaturas";
 }
 
+<div id="particles-js"></div>
+
 <h2>Generate Document Signed Fields</h2>
 
 <form method="post" asp-controller="CreateDocument" asp-action="DownloadJson">
@@ -10,3 +12,13 @@
     <br />
     <button type="submit" class="btn btn-primary">Gerar e Assinar JSON</button>
 </form>
+
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Signature.css" />
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="~/js/site.js"></script>
+}
