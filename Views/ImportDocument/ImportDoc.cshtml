@@ -1,0 +1,50 @@
+@{
+    ViewData["Title"] = "Escolher e Assinar";
+}
+
+<h2>Escolher e Assinar</h2>
+
+<form method="post" enctype="multipart/form-data" asp-controller="ImportDocument" asp-action="ImportDoc">
+    <label>Selecione o arquivo JSON gerado</label>
+    <input type="file" name="jsonFile" class="form-control" />
+    <br />
+    <button type="submit" class="btn btn-success">Carregar JSON</button>
+</form>
+
+@if (ViewBag.Template != null)
+{
+    <hr />
+    <form method="post" asp-controller="ImportDocument" asp-action="ImportDoc">
+        <input type="hidden" name="template" value="@ViewBag.Template" />
+        <input type="hidden" name="signedCombinations" value="@Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.SignedCombinations)" />
+
+        @foreach (var item in (Dictionary<string, object>)ViewBag.Placeholders)
+        {
+            <div class="mb-3">
+                <label>@item.Key</label>
+                @if (item.Value is Newtonsoft.Json.Linq.JArray opcoes)
+                {
+                    <select name="@item.Key" class="form-control">
+                        @foreach (var opcao in opcoes)
+                        {
+                            <option value="@opcao">@opcao</option>
+                        }
+                    </select>
+                }
+                else
+                {
+                    <input type="text" name="@item.Key" class="form-control" />
+                }
+            </div>
+        }
+
+        <button type="submit" class="btn btn-primary">Assinar Documento</button>
+    </form>
+}
+
+@if (ViewBag.OutputJson != null)
+{
+    <h3>Resultado:</h3>
+    <pre>@ViewBag.OutputJson</pre>
+    <p>Assinatura válida? <strong>@(ViewBag.AssinaturaValida ? "Sim" : "Não")</strong></p>
+}
