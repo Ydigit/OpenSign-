@@ -1,0 +1,137 @@
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "About Us";
+}
+
+<div id="particles-js"></div>
+
+<div class="content">
+    <h1 class="display-4">About Us</h1>
+</div>
+
+<div class="about-wrapper">
+    <!-- TEXTO -->
+    <div class="about-container">
+        <p>
+            We are a group of Computer Science and Engineering students at the
+            <a class="link-university" href="https://www.ubi.pt">University of Beira Interior</a>,
+            united by curiosity, critical thinking, and a shared passion for exploring the world of digital security.
+        </p>
+        <p>
+            For this project, we developed an innovative application that enables digital signatures on documents
+            with flexible fields — such as variable dates or multiple predefined choices — addressing real-world needs
+            for adaptable yet secure document handling.
+        </p>
+        <p>
+            Our mission is to create a solution that is simple, secure, and user-friendly, incorporating digital
+            signature mechanisms, key generation and protection, and signature validation processes.
+        </p>
+    </div>
+
+    <!-- EQUIPA -->
+    <div class="team-section">
+
+        <!-- Membro 1 -->
+        <div class="team-member">
+            <div class="flip-card">
+                <div class="flip-face flip-front">
+                    <img src="~/img/ricky.jpg" alt="Diogo Jesus">
+                </div>
+                <div class="flip-face flip-back">
+                    Especialista em criptografia.
+                </div>
+            </div>
+            <div class="member-name">Diogo Jesus</div>
+        </div>
+
+        <!-- Membro 2 -->
+        <div class="team-member">
+            <div class="flip-card">
+                <div class="flip-face flip-front">
+                    <img src="~/img/rafa.jpg" alt="Dinis Ramos">
+                </div>
+                <div class="flip-face flip-back">
+                    Responsável pela UX e UI.
+                </div>
+            </div>
+            <div class="member-name">Dinis Ramos</div>
+        </div>
+
+        <!-- Membro 3 -->
+        <div class="team-member">
+            <div class="flip-card">
+                <div class="flip-face flip-front">
+                    <img src="~/img/dinis.jpg" alt="Leonardo Gonçalves">
+                </div>
+                <div class="flip-face flip-back">
+                    Desenvolvimento backend e API.
+                </div>
+            </div>
+            <div class="member-name">Leonardo Gonçalves</div>
+        </div>
+
+        <!-- Membro 4 -->
+        <div class="team-member">
+            <div class="flip-card">
+                <div class="flip-face flip-front">
+                    <img src="~/img/ricky.jpg" alt="Diogo Jesus">
+                </div>
+                <div class="flip-face flip-back">
+                    Infraestrutura de chave pública.
+                </div>
+            </div>
+            <div class="member-name">Diogo Jesus</div>
+        </div>
+
+        <!-- Membro 5 -->
+        <div class="team-member">
+            <div class="flip-card">
+                <div class="flip-face flip-front">
+                    <img src="~/img/rafa.jpg" alt="Dinis Ramos">
+                </div>
+                <div class="flip-face flip-back">
+                    Integração com plataformas externas.
+                </div>
+            </div>
+            <div class="member-name">Dinis Ramos</div>
+        </div>
+
+        <!-- Membro 6 -->
+        <div class="team-member">
+            <div class="flip-card">
+                <div class="flip-face flip-front">
+                    <img src="~/img/dinis.jpg" alt="Leonardo Gonçalves">
+                </div>
+                <div class="flip-face flip-back">
+                    Gestão de projeto e testes.
+                </div>
+            </div>
+            <div class="member-name">Leonardo Gonçalves</div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Bootstrap Alerts -->
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show text-center mt-3" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show text-center mt-3" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/AboutUs.css" />
+}
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="~/js/site.js"></script>
+}
