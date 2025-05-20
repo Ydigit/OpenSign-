@@ -2,6 +2,7 @@ using System;
 using System.Security.Cryptography;
 public class DerivationService{
 
+    private static int num_iter = 100000;
     /*
     * function that generates the salt 
     * @param sizeSalt - lenght of the salt 
@@ -23,8 +24,6 @@ public class DerivationService{
     public static (byte[] Kderivada, byte[] salt) DeriveKey(string password){
 
         byte[] salt = genSalt(16);//16 bytes?
-
-        int num_iter = 100000;
     
         Rfc2898DeriveBytes password_derived = new Rfc2898DeriveBytes(password, salt, num_iter, HashAlgorithmName.SHA256);
         //correcao do rafa, tinha 256, mas tem de ser o numero de bytes nao de bits
@@ -34,5 +33,16 @@ public class DerivationService{
     }
 
 
+    /*
+     * método que deriva com o salt associado à password 
+     *
+    */
+    public static byte[] DeriveKey(string password, byte[] salt){
+
+        Rfc2898DeriveBytes password_derived = new Rfc2898DeriveBytes(password, salt, num_iter, HashAlgorithmName.SHA256);
+
+        return (password_derived.GetBytes(32), salt);
+
     
+    }   
 }
