@@ -1,0 +1,125 @@
+#particles-js {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, #45484a, #2e3338, #2a3b4a);
+    z-index: -1;
+}
+
+.content {
+    position: relative;
+    color: #ffd700;
+    text-align: left;
+    margin: 60px 40px 0 40px;
+    font-size: 2.5rem;
+}
+
+a {
+    color: #ffd700;
+    text-decoration: underline;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+.about-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Alinha verticalmente */
+    gap: 80px;
+    padding: 40px;
+    max-width: 1400px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+}
+
+.about-container {
+    flex: 1;
+    color: white;
+    text-align: justify;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    min-width: 400px;
+}
+
+/* TEAM GRID */
+.team-section {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px 60px;
+    min-width: 300px;
+    max-width: 400px;
+    padding: 0 20px;
+}
+
+/* MEMBER CARD */
+.team-member {
+    text-align: center;
+    perspective: 1000px;
+}
+
+.flip-card {
+    width: 140px;
+    height: 140px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.6s ease;
+    margin: auto;
+}
+
+.team-member:hover .flip-card {
+    transform: rotateY(180deg);
+}
+
+.flip-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    backface-visibility: hidden;
+    overflow: hidden;
+}
+
+/* FRONT */
+.flip-front img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* BACK */
+.flip-back {
+    background-color: #ffd700;
+    color: black;
+    transform: rotateY(180deg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.9rem;
+    padding: 10px;
+    text-align: center;
+}
+
+.member-name {
+    margin-top: 10px;
+    color: white;
+    font-weight: bold;
+}
+
+/* Responsivo */
+@media (max-width: 960px) {
+    .about-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .team-section {
+        grid-template-columns: 1fr;
+    }
+}
