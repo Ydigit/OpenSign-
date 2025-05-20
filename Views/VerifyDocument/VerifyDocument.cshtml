@@ -1,0 +1,40 @@
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Verify Document";
+}
+
+<div id="particles-js"></div>
+
+<h2>Verificar Documento Assinado</h2>
+
+<form method="post" asp-controller="VerifyDocument" asp-action="VerifySignature" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="signedFile">Ficheiro Assinado (.json)</label>
+        <input type="file" name="signedFile" class="form-control" required accept=".json" />
+    </div>
+
+    <div class="form-group mt-3">
+        <label for="publicKeyFile">Chave Pública (.json)</label>
+        <input type="file" name="publicKeyFile" class="form-control" required accept=".json" />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-4">Verificar</button>
+</form>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success mt-3">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger mt-3">@TempData["Error"]</div>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Generate.css" />
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="~/js/site.js"></script>
+}
