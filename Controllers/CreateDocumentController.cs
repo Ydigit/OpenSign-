@@ -42,11 +42,15 @@ namespace PlaceholderTextApp.Controllers
             if (keyFile == null || keyFile.Length == 0)
                 return BadRequest("Arquivo de chave não fornecido.");
 
-            RSA rsa;
+            //tirar isto pois vou fazer gerar no json na propria funcao
+            //gerar logo o json com as asssinaturas
+
+            object resultJson;
             try
             {
-                // Pass the IFormFile directly to your decrypt method
-                rsa = await Decifrar(keyFile, password);
+                //Json e resultado do decifrar sem expor a variavel sensivel
+                //
+                resultJson = await Decifrar(keyFile, password, textoInput);
             }
             catch (Exception ex)
             {
@@ -54,8 +58,7 @@ namespace PlaceholderTextApp.Controllers
                 return RedirectToAction("CreateDocument");
             }
 
-            var resultadoJson = GerarJsonAssinaturas(textoInput!, rsa);
-            var jsonString = JsonConvert.SerializeObject(resultadoJson, Formatting.Indented);
+            var jsonString = JsonConvert.SerializeObject(resultJson, Formatting.Indented);
             var bytes = Encoding.UTF8.GetBytes(jsonString);
             var fileName = "assinaturas.json";
 
@@ -159,7 +162,7 @@ namespace PlaceholderTextApp.Controllers
             return resultado;
         }
 
-        public async Task<RSA> Decifrar(IFormFile keyFile, string pss)
+        public async Task<object> Decifrar(IFormFile keyFile, string pss, string texto)
         {
             if (keyFile == null || string.IsNullOrEmpty(pss))
             {
@@ -199,15 +202,18 @@ namespace PlaceholderTextApp.Controllers
                     throw new Exception("Modo de cifração desconhecido no arquivo JSON.");
                 }
 
-                //aqui tenho de pegar
+                //retornar o return do return
 
                 // Limpar o arquivo temporário
                 System.IO.File.Delete(tempFilePath);
 
                 // Criar o objeto RSA a partir da chave privada decifrada (em formato PEM)
-                RSA rsa = RSA.Create();
+                using RSA rsa = RSA.Create();
                 rsa.ImportFromPem(decryptedPrivateKey.ToCharArray());
-                return rsa;
+
+                //retorna logo a info assinada, sem contacto com a variavel sensível sk decifrada -> em Json
+                //evita expose de variavel sensível em memory leaks
+                return GerarJsonAssinaturas(texto, rsa);
             }
             catch (Exception ex)
             {
