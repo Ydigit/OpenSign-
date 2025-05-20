@@ -41,7 +41,7 @@ public class DerivationService{
 
         Rfc2898DeriveBytes password_derived = new Rfc2898DeriveBytes(password, salt, num_iter, HashAlgorithmName.SHA256);
 
-        return (password_derived.GetBytes(32), salt);
+        return (password_derived.GetBytes(32));
 
     
     }   
