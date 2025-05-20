@@ -3,6 +3,10 @@ using Newtonsoft.Json;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.IO;
+using System.Threading.Tasks;
+using OpenSign.Services;
+using System.Text.Json;
 
 namespace PlaceholderTextApp.Controllers
 {
@@ -15,22 +19,54 @@ namespace PlaceholderTextApp.Controllers
             return View();
         }
 
-        [HttpPost]
-        public IActionResult DownloadJson(IFormCollection form)
+        private readonly DecryptCBCService _decryptServiceCBC;
+        private readonly DecryptionCTRService _decryptServiceCTR;
+
+
+        public CreateDocumentController()
+        {
+            _decryptServiceCBC = new DecryptCBCService();
+            _decryptServiceCTR = new DecryptionCTRService();
+
+        }
+
+        [HttpPost("GerarEAssinarJson")]
+        public async Task<IActionResult> GerarEAssinarJson(IFormCollection form, IFormFile keyFile)
         {
             string? textoInput = form["novoInput"];
-            if (string.IsNullOrWhiteSpace(textoInput))
-                return BadRequest("Texto inválido.");
+            string? password = form["pss"];
 
-            var resultadoJson = GerarJsonAssinaturas(textoInput!);
-            var jsonString = JsonConvert.SerializeObject(resultadoJson, Formatting.Indented);
+            if (string.IsNullOrWhiteSpace(textoInput) || string.IsNullOrWhiteSpace(password))
+                return BadRequest("Texto ou senha inválido.");
+
+            if (keyFile == null || keyFile.Length == 0)
+                return BadRequest("Arquivo de chave não fornecido.");
+
+            //tirar isto pois vou fazer gerar no json na propria funcao
+            //gerar logo o json com as asssinaturas
+
+            object resultJson;
+            try
+            {
+                //Json e resultado do decifrar sem expor a variavel sensivel
+                //
+                resultJson = await Decifrar(keyFile, password, textoInput);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = $"Erro ao decifrar a chave: {ex.Message}";
+                return RedirectToAction("CreateDocument");
+            }
+
+            var jsonString = JsonConvert.SerializeObject(resultJson, Formatting.Indented);
             var bytes = Encoding.UTF8.GetBytes(jsonString);
             var fileName = "assinaturas.json";
 
+            TempData["Success"] = "Documento gerado com sucesso!";
             return File(bytes, "application/json", fileName);
         }
 
-        private object GerarJsonAssinaturas(string texto)
+        private object GerarJsonAssinaturas(string texto, RSA rsa)
         {
             var regex = new Regex(@"\[([^\]]*)\]");
             var matches = regex.Matches(texto);
@@ -73,8 +109,6 @@ namespace PlaceholderTextApp.Controllers
 
             var combinacoes = GerarCombinacoes(fixedOptionValues);
             var combinacoesAssinadas = new Dictionary<string, object>();
-
-            using RSA rsa = RSA.Create(2048);
 
             foreach (var combinacao in combinacoes)
             {
@@ -126,6 +160,65 @@ namespace PlaceholderTextApp.Controllers
             }
 
             return resultado;
+        }
+
+        public async Task<object> Decifrar(IFormFile keyFile, string pss, string texto)
+        {
+            if (keyFile == null || string.IsNullOrEmpty(pss))
+            {
+                throw new ArgumentException("Erro: Ficheiro ou password inválidos!");
+            }
+
+            try
+            {
+                // Salvar o arquivo temporariamente
+                var tempFilePath = Path.GetTempFileName();
+                using (var stream = System.IO.File.Create(tempFilePath))
+                {
+                    await keyFile.CopyToAsync(stream);
+                }
+
+                // Ler o JSON do arquivo
+                string jsonContent = await System.IO.File.ReadAllTextAsync(tempFilePath);
+                var keyData = System.Text.Json.JsonSerializer.Deserialize<KeyDataModel>(jsonContent);
+
+                if (keyData == null || string.IsNullOrEmpty(keyData.CipherMode))
+                {
+                    throw new Exception("O arquivo JSON está malformado ou não contém o modo de cifração.");
+                }
+
+                // Escolher o serviço de decifração com base no modo
+                string decryptedPrivateKey;
+                if (keyData.CipherMode == "aes-256-cbc")
+                {
+                    decryptedPrivateKey = _decryptServiceCBC.DecryptPrivateKeyFromJson(tempFilePath, pss);
+                }
+                else if (keyData.CipherMode == "aes-256-ctr")
+                {
+                    decryptedPrivateKey = _decryptServiceCTR.DecryptPrivateKeyFromJson(tempFilePath, pss);
+                }
+                else
+                {
+                    throw new Exception("Modo de cifração desconhecido no arquivo JSON.");
+                }
+
+                //retornar o return do return
+
+                // Limpar o arquivo temporário
+                System.IO.File.Delete(tempFilePath);
+
+                // Criar o objeto RSA a partir da chave privada decifrada (em formato PEM)
+                using RSA rsa = RSA.Create();
+                rsa.ImportFromPem(decryptedPrivateKey.ToCharArray());
+
+                //retorna logo a info assinada, sem contacto com a variavel sensível sk decifrada -> em Json
+                //evita expose de variavel sensível em memory leaks
+                return GerarJsonAssinaturas(texto, rsa);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Erro ao decifrar: {ex.Message}");
+            }
         }
     }
 }
