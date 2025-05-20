@@ -96,7 +96,7 @@ namespace PlaceholderTextApp.Controllers
                     { "signature", assinaturaBase64 }
                 });
             }
-
+            // Corrected
             return new
             {
                 original = texto,
