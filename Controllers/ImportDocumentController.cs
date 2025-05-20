@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
+using System.Text;
+using System.Security.Cryptography;
 
 //ImportDoument
 namespace PlaceholderTextApp.Controllers
@@ -31,7 +33,7 @@ namespace PlaceholderTextApp.Controllers
             else
             {
                 string template = form["template"];
-                var signedCombinations = JsonConvert.DeserializeObject<List<dynamic>>(form["signedCombinations"]);
+                var signedCombinations = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(form["signedCombinations"]);
 
                 var respostas = form
                     .Where(k => k.Key != "template" && k.Key != "signedCombinations" && !k.Key.StartsWith("__"))
@@ -50,17 +52,17 @@ namespace PlaceholderTextApp.Controllers
                     return hasOptions && respostas.ContainsKey(key) ? respostas[key] : m.Value;
                 });
 
-                string? assinatura = null;
-                bool assinaturaValida = false;
+                byte[] dados = Encoding.UTF8.GetBytes(textoAssinado);
+                using SHA256 sha256 = SHA256.Create();
+                byte[] hash = sha256.ComputeHash(dados);
+                string hashBase64 = Convert.ToBase64String(hash);
 
-                foreach (var comb in signedCombinations)
+                string? assinatura = null;
+                bool assinaturaValida = signedCombinations.TryGetValue(hashBase64, out var match);
+
+                if (assinaturaValida)
                 {
-                    if ((string)comb.text == textoAssinado)
-                    {
-                        assinatura = comb.signature;
-                        assinaturaValida = true;
-                        break;
-                    }
+                    assinatura = match.signature;
                 }
 
                 var outputJson = new
@@ -68,7 +70,9 @@ namespace PlaceholderTextApp.Controllers
                     selected_text = textoCompleto,
                     signed_text = textoAssinado,
                     inputs = respostas,
-                    signature = assinaturaValida ? assinatura : null
+                    hash = hashBase64,
+                    signature = assinatura,
+                    signature_matched = assinaturaValida
                 };
 
                 ViewBag.OutputJson = JsonConvert.SerializeObject(outputJson, Formatting.Indented);
