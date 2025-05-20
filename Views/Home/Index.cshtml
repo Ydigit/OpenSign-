@@ -7,40 +7,41 @@
 
 <div class="text-center content">
     <h1 class="display-4">Welcome to OpenSign</h1>
-    <p>Learn more about <a href="https://learn.microsoft.com/aspnet/core">ASP.NET Core</a> and <strong>criptography</strong>.</p>
+    <p>Learn more about <a href="https://learn.microsoft.com/aspnet/core">ASP.NET Core</a> and <strong>cryptography</strong>.</p>
 
-    <!-- Botão para gerar chaves -->
+    <!-- Original Buttons -->
     <p class="mt-4">
-        <a class="btn btn-warning btn-lg" href="/Sign"> Let's Sign ?</a>
+        <a class="btn btn-warning btn-lg me-2" href="/Sign">Let's Sign ?</a>
+        <a class="btn btn-warning btn-lg ms-2" href="/Sign">Let's Verify ?</a>
     </p>
+
+    <!-- New Buttons -->
     <p class="mt-4">
-        <a class="btn btn-warning btn-lg" href="/Sign"> Let's Verify ? </a>
+        <a class="btn btn-primary" href="/CreateDocument/CreateDoc">✍️ Create Document</a>
+        <a class="btn btn-success" href="/ImportDocument/ImportDoc">📥 Import Document</a>
     </p>
 
 </div>
 
-<!-- Mensagens com Bootstrap Alerts  -->
 @if (TempData["Success"] != null)
 {
-<div class="alert alert-success alert-dismissible fade show text-center mt-3" role="alert">
-    @TempData["Success"]
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
+    <div class="alert alert-success alert-dismissible fade show text-center mt-3" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 }
-
 @if (TempData["Error"] != null)
 {
-<div class="alert alert-danger alert-dismissible fade show text-center mt-3" role="alert">
-    @TempData["Error"]
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
+    <div class="alert alert-danger alert-dismissible fade show text-center mt-3" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 }
 
-@section Styles{
-    <link rel="stylesheet" , href="~/css/Index.css" />
+@section Styles {
+    <link rel="stylesheet" href="~/css/Index.css" />
 }
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script src="~/js/site.js"></script>
 }
-

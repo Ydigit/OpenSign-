@@ -2,7 +2,7 @@ using System;
 using System.Security.Cryptography;
 public class DerivationService{
 
-    private int num_iter = 100000;
+    private static int num_iter = 100000;
     /*
     * function that generates the salt 
     * @param sizeSalt - lenght of the salt 
@@ -32,6 +32,7 @@ public class DerivationService{
     
     }
 
+
     /*
      * método que deriva com o salt associado à password 
      *
@@ -41,6 +42,7 @@ public class DerivationService{
         Rfc2898DeriveBytes password_derived = new Rfc2898DeriveBytes(password, salt, num_iter, HashAlgorithmName.SHA256);
 
         return (password_derived.GetBytes(32), salt);
+
     
     }   
 }

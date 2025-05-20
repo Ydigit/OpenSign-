@@ -1,0 +1,66 @@
+@model OpenSign.Models.DocumentEditViewModel
+
+@{
+    ViewData["Title"] = "Fill Document";
+}
+<div id="particles-js"></div>
+
+<div class="text-center content">
+    <h1 class="display-4">Complete Document</h1>
+    <p class="lead">Choose options or fill the free text fields.</p>
+</div>
+
+@if (TempData["Success"] != null)
+{
+<div class="alert alert-success alert-dismissible fade show text-center mt-3" role="alert">
+    @TempData["Success"]
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+}
+
+@if (TempData["Error"] != null)
+{
+<div class="alert alert-danger alert-dismissible fade show text-center mt-3" role="alert">
+    @TempData["Error"]
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+}
+
+<div class="container mt-4">
+    <form asp-controller="Document" asp-action="SubmitChoices" method="post">
+        @foreach (var placeholder in Model.Placeholders)
+        {
+        <div class="mb-3">
+            <label class="form-label"><strong>@placeholder.Name</strong></label>
+
+            @if (placeholder.Type == "multiple_choice")
+                {
+                    <!-- Dropdown para alternativas -->
+            <select class="form-select" name="Choices[@placeholder.Name]" required>
+                <option value="">-- Select --</option>
+                @foreach (var option in placeholder.Options)
+                        {
+                <option value="@option">@option</option>
+                        }
+            </select>
+                }
+                else if (placeholder.Type == "free_text")
+                {
+ <!-- Textbox para texto livre -->
+            <input type="text" class="form-control" name="Choices[@placeholder.Name]" placeholder="Enter value..." required />
+                }
+        </div>
+        }
+
+        <button type="submit" class="btn btn-success btn-lg w-100 mt-3">Confirm & Generate Final Document</button>
+    </form>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Signature.css" />
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="~/js/site.js"></script>
+}
