@@ -1,0 +1,62 @@
+@{
+    ViewData["Title"] = "Gerar e Assinar Documento";
+}
+
+<div id="particles-js"></div>
+
+<h2>Gerar Documento com Assinaturas</h2>
+
+<form method="post" asp-controller="CreateDocument" asp-action="GerarEAssinarJson" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="novoInput">Texto com placeholders</label>
+        <textarea name="novoInput" class="form-control" rows="10" placeholder="Ex: Olá [nome: Pedro, Ana], você está em [cidade]..." required></textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="keyFile">Chave Privada Cifrada (.json)</label>
+        <input type="file" name="keyFile" class="form-control" required accept=".json" />
+    </div>
+
+    <div class="form-group">
+        <label for="pss">Password para decifrar a chave</label>
+        <div class="input-group">
+            <input type="password" name="pss" id="pss" class="form-control" placeholder="Introduce a tua password" required />
+            <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                <i class="bi bi-eye"></i>
+            </button>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Gerar JSON com Assinaturas</button>
+</form>
+
+@if (TempData["Success"] != null)
+{
+<div class="alert alert-success mt-3">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+<div class="alert alert-danger mt-3">@TempData["Error"]</div>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Generate.css" />
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="~/js/site.js"></script>
+    <script>
+        // Toggle de password
+        document.getElementById("togglePassword")?.addEventListener("click", function () {
+            const pss = document.getElementById("pss");
+            if (pss.type === "password") {
+                pss.type = "text";
+                this.innerHTML = '<i class="bi bi-eye-slash"></i>';
+            } else {
+                pss.type = "password";
+                this.innerHTML = '<i class="bi bi-eye"></i>';
+            }
+        });
+    </script>
+}

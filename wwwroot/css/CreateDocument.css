@@ -1,0 +1,62 @@
+﻿.editor-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px;
+    background: #1e1e2f;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+form h2 {
+    color: #ffd700;
+    margin-bottom: 20px;
+}
+
+textarea {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    font-family: monospace;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    resize: vertical;
+    background: #f4f4f4;
+    color: #333;
+    min-height: 300px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+input[type="password"],
+input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    background-color: #f4f4f4;
+}
+
+.button-group {
+    text-align: center;
+    margin-top: 20px;
+}
+
+    .button-group button {
+        padding: 12px 25px;
+        background-color: #ffd700;
+        color: black;
+        font-size: 18px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .button-group button:hover {
+            background-color: #9c9c16;
+            color: white;
+        }
