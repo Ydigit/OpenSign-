@@ -2,18 +2,20 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 
+//ImportDoument
 namespace PlaceholderTextApp.Controllers
 {
+    [Route("ImportDocument")]
     public class ImportDocumentController : Controller
     {
-        [HttpGet]
-        public IActionResult ImportDoc()
+        [HttpGet("")]
+        public IActionResult ImportDocument()
         {
-            return View("~/Views/ImportDocument/ImportDoc.cshtml");
+            return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> ImportDoc(IFormFile jsonFile, IFormCollection form)
+        public async Task<IActionResult> ImportDocument(IFormFile jsonFile, IFormCollection form)
         {
             if (jsonFile != null)
             {
@@ -24,7 +26,7 @@ namespace PlaceholderTextApp.Controllers
                 ViewBag.Placeholders = json.placeholders.ToObject<Dictionary<string, object>>();
                 ViewBag.SignedCombinations = json.signed_combinations;
 
-                return View("~/Views/ImportDocument/ImportDoc.cshtml");
+                return View();
             }
             else
             {
