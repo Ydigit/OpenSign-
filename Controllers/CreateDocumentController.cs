@@ -72,7 +72,7 @@ namespace PlaceholderTextApp.Controllers
             }
 
             var combinacoes = GerarCombinacoes(fixedOptionValues);
-            var combinacoesAssinadas = new List<Dictionary<string, string>>();
+            var combinacoesAssinadas = new Dictionary<string, object>();
 
             using RSA rsa = RSA.Create(2048);
 
@@ -87,16 +87,18 @@ namespace PlaceholderTextApp.Controllers
                 byte[] dados = Encoding.UTF8.GetBytes(textoFinal);
                 using SHA256 sha256 = SHA256.Create();
                 byte[] hash = sha256.ComputeHash(dados);
+                string hashBase64 = Convert.ToBase64String(hash);
+
                 byte[] assinatura = rsa.SignHash(hash, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
                 string assinaturaBase64 = Convert.ToBase64String(assinatura);
 
-                combinacoesAssinadas.Add(new Dictionary<string, string>
+                combinacoesAssinadas[hashBase64] = new
                 {
-                    { "text", textoFinal },
-                    { "signature", assinaturaBase64 }
-                });
+                    text = textoFinal,
+                    signature = assinaturaBase64
+                };
             }
-            // Corrected
+
             return new
             {
                 original = texto,
