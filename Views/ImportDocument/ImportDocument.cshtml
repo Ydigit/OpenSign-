@@ -4,6 +4,9 @@
 
 <h2>Escolher e Assinar</h2>
 
+<div id="particles-js"></div>
+
+
 <form method="post" enctype="multipart/form-data" asp-controller="ImportDocument" asp-action="ImportDocument">
     <label>Selecione o arquivo JSON gerado</label>
     <input type="file" name="jsonFile" class="form-control" />
@@ -13,38 +16,46 @@
 
 @if (ViewBag.Template != null)
 {
-    <hr />
-    <form method="post" asp-controller="ImportDocument" asp-action="ImportDocument">
-        <input type="hidden" name="template" value="@ViewBag.Template" />
-        <input type="hidden" name="signedCombinations" value="@Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.SignedCombinations)" />
+<hr />
+<form method="post" asp-controller="ImportDocument" asp-action="ImportDocument">
+    <input type="hidden" name="template" value="@ViewBag.Template" />
+    <input type="hidden" name="signedCombinations" value="@Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.SignedCombinations)" />
 
-        @foreach (var item in (Dictionary<string, object>)ViewBag.Placeholders)
+    @foreach (var item in (Dictionary<string, object>)ViewBag.Placeholders)
         {
-            <div class="mb-3">
-                <label>@item.Key</label>
-                @if (item.Value is Newtonsoft.Json.Linq.JArray opcoes)
+    <div class="mb-3">
+        <label>@item.Key</label>
+        @if (item.Value is Newtonsoft.Json.Linq.JArray opcoes)
                 {
-                    <select name="@item.Key" class="form-control">
-                        @foreach (var opcao in opcoes)
+        <select name="@item.Key" class="form-control">
+            @foreach (var opcao in opcoes)
                         {
-                            <option value="@opcao">@opcao</option>
+            <option value="@opcao">@opcao</option>
                         }
-                    </select>
+        </select>
                 }
                 else
                 {
-                    <input type="text" name="@item.Key" class="form-control" />
+        <input type="text" name="@item.Key" class="form-control" />
                 }
-            </div>
+    </div>
         }
 
-        <button type="submit" class="btn btn-primary">Assinar Documento</button>
-    </form>
+    <button type="submit" class="btn btn-primary">Assinar Documento</button>
+</form>
 }
 
 @if (ViewBag.OutputJson != null)
 {
-    <h3>Resultado:</h3>
-    <pre>@ViewBag.OutputJson</pre>
-    <p>Signature exists? <strong>@(ViewBag.AssinaturaValida ? "No" : "Yes")</strong></p>
+<h3>Resultado:</h3>
+<pre>@ViewBag.OutputJson</pre>
+<p>Signature exists? <strong>@(ViewBag.AssinaturaValida ? "No" : "Yes")</strong></p>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Generate.css" />
+}
+
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+<script src="~/js/site.js"></script>
 }
