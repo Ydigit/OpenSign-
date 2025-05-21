@@ -138,7 +138,8 @@ namespace PlaceholderTextApp.Controllers
             {
                 original = texto,
                 placeholders = placeholders,
-                signed_combinations = combinacoesAssinadas
+                signed_combinations = combinacoesAssinadas,
+                signature_algorithm = "RSA"
             };
         }
 
