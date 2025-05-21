@@ -14,7 +14,7 @@
 @if (ViewBag.Template != null)
 {
     <hr />
-    <form method="post" asp-controller="ImportDocument" asp-action="ImportDoc">
+    <form method="post" asp-controller="ImportDocument" asp-action="ImportDocument">
         <input type="hidden" name="template" value="@ViewBag.Template" />
         <input type="hidden" name="signedCombinations" value="@Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.SignedCombinations)" />
 
