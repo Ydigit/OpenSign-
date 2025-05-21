@@ -80,7 +80,7 @@ namespace PlaceholderTextApp.Controllers
                 ViewBag.TextoFinal = textoCompleto;
                 ViewBag.TextoAssinado = textoAssinado;
 
-                return View("~/Views/ImportDocument/ImportDoc.cshtml");
+                return View();
             }
         }
     }
