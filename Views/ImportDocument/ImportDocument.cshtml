@@ -5,11 +5,18 @@
 <h2>Escolher e Assinar</h2>
 
 <form method="post" enctype="multipart/form-data" asp-controller="ImportDocument" asp-action="ImportDocument">
-    <label>Selecione o arquivo JSON gerado</label>
-    <input type="file" name="jsonFile" class="form-control" />
-    <br />
-    <button type="submit" class="btn btn-success">Carregar JSON</button>
+    <div class="mb-3">
+        <label for="jsonFile" class="form-label">Selecione o arquivo JSON gerado</label>
+        <input type="file" id="jsonFile" name="jsonFile" class="form-control" accept=".json" />
+    </div>
+    <div class="mb-3">
+        <label for="keyJsonFile" class="form-label">Selecione o arquivo JSON chave publica</label>
+        <input type="file" id="keyJsonFilev" name="keyJsonFile" class="form-control" accept=".json" />
+    </div>
+    <button type="submit" class="btn btn-success mt-3">Carregar JSON</button>
 </form>
+
+
 
 @if (ViewBag.Template != null)
 {
