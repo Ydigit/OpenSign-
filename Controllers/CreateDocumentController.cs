@@ -129,7 +129,8 @@ namespace PlaceholderTextApp.Controllers
                 combinacoesAssinadas[hashBase64] = new
                 {
                     text = textoFinal,
-                    signature = assinaturaBase64
+                    signature = assinaturaBase64,
+                    hash = hashBase64
                 };
             }
 
