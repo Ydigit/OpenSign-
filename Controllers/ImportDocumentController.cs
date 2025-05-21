@@ -72,7 +72,8 @@ namespace PlaceholderTextApp.Controllers
                     inputs = respostas,
                     hash = hashBase64,
                     signature = assinatura,
-                    signature_matched = assinaturaValida
+                    signature_matched = assinaturaValida,
+                    signature_algorithm = "RSA"
                 };
 
                 ViewBag.OutputJson = JsonConvert.SerializeObject(outputJson, Formatting.Indented);
