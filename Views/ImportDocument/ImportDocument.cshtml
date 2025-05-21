@@ -4,7 +4,7 @@
 
 <h2>Escolher e Assinar</h2>
 
-<form method="post" enctype="multipart/form-data" asp-controller="ImportDocument" asp-action="ImportDoc">
+<form method="post" enctype="multipart/form-data" asp-controller="ImportDocument" asp-action="ImportDocument">
     <label>Selecione o arquivo JSON gerado</label>
     <input type="file" name="jsonFile" class="form-control" />
     <br />
@@ -14,7 +14,7 @@
 @if (ViewBag.Template != null)
 {
     <hr />
-    <form method="post" asp-controller="ImportDocument" asp-action="ImportDoc">
+    <form method="post" asp-controller="ImportDocument" asp-action="ImportDocument">
         <input type="hidden" name="template" value="@ViewBag.Template" />
         <input type="hidden" name="signedCombinations" value="@Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.SignedCombinations)" />
 
