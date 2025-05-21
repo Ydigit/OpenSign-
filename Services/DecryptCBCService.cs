@@ -27,9 +27,7 @@ namespace OpenSign.Services
                     throw new NotSupportedException($"Cipher mode '{cipherMode}' is not supported yet.");
 
                 // Deriva a chave a partir da password
-                int num_iter = 100000;
-                using var rfcDerive = new Rfc2898DeriveBytes(rawPassword, salt, num_iter, HashAlgorithmName.SHA256);
-                byte[] key = rfcDerive.GetBytes(32);
+                byte[] key = DerivationService.DeriveKey(rawPassword, salt);
 
                 if (key.Length != 32)
                     throw new ArgumentException($"Invalid key size. Expected 32 bytes, got {key.Length}");

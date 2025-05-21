@@ -81,7 +81,7 @@ public class KeyService
                         Directory.CreateDirectory(directory);
                     }
 
-                    var deriveService = new DerivationService();
+                    //var deriveService = new DerivationService();
                     var passderivada = DerivationService.DeriveKey(rawpass); // sem new DerivationService()
 
                     var passwordDerivada = passderivada.Kderivada;
