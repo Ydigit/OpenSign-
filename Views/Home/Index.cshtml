@@ -9,11 +9,51 @@
     <h1 class="display-4">Welcome to OpenSign</h1>
     <p>Learn more about <a href="https://learn.microsoft.com/aspnet/core">ASP.NET Core</a> and <strong>cryptography</strong>.</p>
 
-    <!-- Original Buttons -->
-    <p class="mt-4">
-        <a class="btn btn-warning btn-lg me-2" href="/Sign">Sign Workflow</a>
-        <a class="btn btn-warning btn-lg ms-2" href="/ImportDocument">Validation Workflow</a>
-    </p>
+    <div class="container mt-5">
+        <div class="row justify-content-center g-5">
+            <!-- Card 1 -->
+            <div class="col-md-4">
+                <div class="card bg-dark text-white d-flex flex-row align-items-center shadow h-100">
+                    <img src="@Url.Content("~/img/indexImgs/sign.png")" alt="Sign" style="width: 190px; object-fit: contain; padding: 1rem; ">
+                    <div class="card-body">
+                        <h5 class="card-title">Assinatura com Alternativas</h5>
+                        <p class="card-text">Assine documentos com campos variáveis ou múltiplas escolhas.</p>
+                        <a href="/Sign" class="btn btn-warning mt-2">Ir para Sign Workflow</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="col-md-4">
+                <div class="card bg-dark text-white d-flex flex-row align-items-center shadow h-100">
+                    <img src="@Url.Content("~/img/indexImgs/verify.png")" alt="Verify" style="width: 190px; object-fit: contain; padding: 1rem; ">
+                    <div class="card-body">
+                        <h5 class="card-title">Validação de Assinaturas</h5>
+                        <p class="card-text">Verifique a integridade dos documentos usando chaves públicas.</p>
+                        <a href="/ImportDocument" class="btn btn-warning mt-2">Ir para Validation Workflow</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="col-md-4">
+                <div class="card bg-dark text-white d-flex flex-row align-items-center shadow h-100">
+                    <img src="@Url.Content("~/img/indexImgs/key.png")" alt="Keys" style="width: 190px; object-fit: contain; padding: 1rem; ">
+                    <div class="card-body">
+                        <h5 class="card-title">Geração de Chaves Seguras</h5>
+                        <p class="card-text">Crie chaves criptográficas protegidas por palavra-passe.</p>
+                        <a href="/Generate" class="btn btn-warning mt-2">Ir para Geração de Chaves</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</div>
+    </div>
+
 
 </div>
 
