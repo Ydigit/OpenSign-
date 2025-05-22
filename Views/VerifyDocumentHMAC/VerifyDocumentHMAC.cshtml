@@ -1,0 +1,88 @@
+@{
+    ViewData["Title"] = "Verificar Assinatura HMAC";
+}
+
+<h2>Verificar Assinatura com HMAC</h2>
+
+<div id="particles-js"></div>
+
+<!-- Formulário para carregar o JSON assinado e a chave HMAC -->
+<form method="post" enctype="multipart/form-data" asp-controller="VerifyDocumentHMAC" asp-action="VerifyDocumentHMAC">
+    <div class="mb-3">
+        <label for="jsonFile" class="form-label">Selecione o arquivo JSON gerado</label>
+        <input type="file" id="jsonFile" name="jsonFile" class="form-control" accept=".json" required />
+    </div>
+    <div class="mb-3">
+        <label for="hmacKey" class="form-label">Chave secreta HMAC</label>
+        <div class="input-group">
+            <input type="password" id="hmacKey" name="hmacKey" class="form-control" placeholder="Digite a chave HMAC" required />
+            <button type="button" class="btn btn-outline-secondary" id="toggleHmacKey">
+                <i class="bi bi-eye"></i>
+            </button>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-success mt-3">Carregar JSON</button>
+</form>
+
+<!-- Se o template foi carregado com sucesso, mostra o formulário de preenchimento -->
+@if (ViewBag.Template != null)
+{
+    <hr />
+    <form method="post" asp-controller="VerifyDocumentHMAC" asp-action="VerifyDocumentHMAC">
+        <input type="hidden" name="template" value="@ViewBag.Template" />
+        <input type="hidden" name="signedCombinations" value="@Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.SignedCombinations)" />
+        <input type="hidden" name="hmacKey" value="@ViewBag.HmacKey" />
+
+        @foreach (var item in (Dictionary<string, object>)ViewBag.Placeholders)
+        {
+            <div class="mb-3">
+                <label>@item.Key</label>
+                @if (item.Value is Newtonsoft.Json.Linq.JArray opcoes)
+                {
+                    <select name="@item.Key" class="form-control">
+                        @foreach (var opcao in opcoes)
+                        {
+                            <option value="@opcao">@opcao</option>
+                        }
+                    </select>
+                }
+                else
+                {
+                    <input type="text" name="@item.Key" class="form-control" />
+                }
+            </div>
+        }
+
+        <button type="submit" class="btn btn-primary">Verificar Assinatura</button>
+    </form>
+}
+
+<!-- Resultado da verificação -->
+@if (ViewBag.OutputJson != null)
+{
+    <h3>Resultado:</h3>
+    <pre>@ViewBag.OutputJson</pre>
+    <p>Assinatura válida? <strong>@(ViewBag.AssinaturaValida ? "Sim" : "Não")</strong></p>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Generate.css" />
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="~/js/site.js"></script>
+    <script>
+        // Mostrar/ocultar a chave HMAC
+        document.getElementById("toggleHmacKey")?.addEventListener("click", function () {
+            const input = document.getElementById("hmacKey");
+            if (input.type === "password") {
+                input.type = "text";
+                this.innerHTML = '<i class="bi bi-eye-slash"></i>';
+            } else {
+                input.type = "password";
+                this.innerHTML = '<i class="bi bi-eye"></i>';
+            }
+        });
+    </script>
+}

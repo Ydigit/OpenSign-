@@ -1,61 +1,81 @@
 @{
-    ViewData["Title"] = "Escolher e Assinar";
+    ViewData["Title"] = "Import Private Key";
 }
-
-<h2>Escolher e Assinar</h2>
-
 <div id="particles-js"></div>
 
 
-<form method="post" enctype="multipart/form-data" asp-controller="ImportDocument" asp-action="ImportDocument">
-    <label>Selecione o arquivo JSON gerado</label>
-    <input type="file" name="jsonFile" class="form-control" />
-    <br />
-    <button type="submit" class="btn btn-success">Carregar JSON</button>
-</form>
+<div id="part
+<div class="container mt-4">
+    <h2>Import Private Key</h2>
+    <form asp-controller="Import" asp-action="Decifrar" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="keyFile">Encrypted Key File (.json)</label>
+            <input type="file" name="keyFile"class="form-control" required />
+        </div>
+        <div>
+            <label for="pss">Password for Key Encryption</label>
+            <div class="input-group">
+                <input type="password" id="pss" name="pss" class="form-control" placeholder="Introduce your secure Password" required>
+                <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                    <i class="bi bi-eye"></i>
+                </button>
+            </div>
+        </div>
 
-@if (ViewBag.Template != null)
-{
-<hr />
-<form method="post" asp-controller="ImportDocument" asp-action="ImportDocument">
-    <input type="hidden" name="template" value="@ViewBag.Template" />
-    <input type="hidden" name="signedCombinations" value="@Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.SignedCombinations)" />
+        <button type="submit">Generate Key</button>
+    </form>
 
-    @foreach (var item in (Dictionary<string, object>)ViewBag.Placeholders)
-        {
-    <div class="mb-3">
-        <label>@item.Key</label>
-        @if (item.Value is Newtonsoft.Json.Linq.JArray opcoes)
-                {
-        <select name="@item.Key" class="form-control">
-            @foreach (var opcao in opcoes)
-                        {
-            <option value="@opcao">@opcao</option>
-                        }
-        </select>
-                }
-                else
-                {
-        <input type="text" name="@item.Key" class="form-control" />
-                }
+    <div class="text-center content">
+        <p><strong>If you want to sign documents</strong></p>
+        <p class="mt-4">
+            <a class="btn btn-warning btn-lg" href="/Signature"> Signature Page</a>
+        </p>
     </div>
-        }
 
-    <button type="submit" class="btn btn-primary">Assinar Documento</button>
-</form>
+    @if (ViewBag.Message != null)
+    {
+        <div class="alert alert-info mt-3">@ViewBag.Message</div>
+    }
+
+    @if (ViewBag.DecryptedPrivateKey != null)
+    {
+        <div class="alert alert-success mt-3">
+            <strong>Decrypted Private Key:</strong>
+            <pre>@ViewBag.DecryptedPrivateKey</pre>
+        </div>
+    }
+
+    @if (ViewBag.DecryptedPublicKey != null)
+    {
+        <div class="alert alert-success mt-3">
+            <strong>Decrypted Public Key:</strong>
+            <pre>@ViewBag.DecryptedPublicKey</pre>
+        </div>
+    }
+</div>
+
+<!-- Mensagens com Bootstrap Alerts  -->
+@if (TempData["Success"] != null)
+{
+<div class="alert alert-success alert-dismissible fade show text-center mt-3" role="alert">
+    @TempData["Success"]
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
 }
 
-@if (ViewBag.OutputJson != null)
+@if (TempData["Error"] != null)
 {
-    <h3>Resultado:</h3>
-    <pre>@ViewBag.OutputJson</pre>
-    <p>Signature exists? <strong>@(ViewBag.AssinaturaValida ? "No" : "Yes")</strong></p>
+<div class="alert alert-danger alert-dismissible fade show text-center mt-3" role="alert">
+    @TempData["Error"]
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/Generate.css" />
+    <link rel="stylesheet" href="~/css/Import.css" />
 }
 
-<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-<script src="~/js/site.js"></script>
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="~/js/site.js"></script>
 }

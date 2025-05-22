@@ -1,6 +1,6 @@
 @{
     Layout = "_Layout";
-    ViewData["Title"] = "Sign Page";
+    ViewData["Title"] = "Verify RSA Page";
 }
 
 
@@ -8,20 +8,16 @@
 <div id="particles-js"></div>
 
 <div class="text-center content">
-    <h1 class="display-4">Sign with OpenSign</h1>
+    <h1 class="display-4">Verify with OpenSign</h1>
     <p>Learn more about <a href="https://learn.microsoft.com/aspnet/core">ASP.NET Core</a> and <strong>criptography</strong>.</p>
 
     <!-- Botao para gerar chaves -->
     <p class="mt-4">
-        <a class="btn btn-warning btn-lg" href="/Generate"> Generate RSA Keys</a>
+        <a class="btn btn-warning btn-lg" href="/VerifyDocument">Verify RSA Signed Document</a>
     </p>
     <p class="mt-4">
-        <a class="btn btn-warning btn-lg" href="/CreateDocument"> Create RSA Document</a>
+        <a class="btn btn-warning btn-lg" href="/VerifyDocumentHMAC">Verify HMAC Signed Document</a>
     </p>
-    <p class="mt-4">
-        <a class="btn btn-warning btn-lg" href="/CreateDocumentHMAC"> Create HMAC Document</a>
-    </p>
-    
 </div>
 
 <!-- Mensagens com Bootstrap Alerts  -->
