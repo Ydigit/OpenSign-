@@ -58,13 +58,22 @@
 }
 
 <!-- Resultado da verificação -->
-@if (ViewBag.OutputJson != null)
+@if (ViewBag.AssinaturaValida != null)
 {
-    <h3 style="color: white;">Result:</h3>
-
-    <pre>@ViewBag.OutputJson</pre>
-    <p class="text-white">Verified Signature: <strong>@(ViewBag.AssinaturaValida ? "Yes" : "No")</strong></p>
+    if ((bool)ViewBag.AssinaturaValida)
+    {
+        <div class="alert alert-success" role="alert">
+            ✅ Verificação aceite! A assinatura é válida.
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger" role="alert">
+            ❌ Verificação falhou. A assinatura não é válida.
+        </div>
+    }
 }
+
 
 @section Styles {
     <link rel="stylesheet" href="~/css/Generate.css" />
