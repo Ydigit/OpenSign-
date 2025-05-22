@@ -27,7 +27,7 @@ namespace OpenSign.Controllers
         //trigger quando em /Generate chamo o metodo de post
         [HttpPost("")]
         //Adicionar os parametros de cifra simetrica
-        public IActionResult Generate(int keySize, string encmode, string pss){
+        public IActionResult Generate(int keySize, string encmode, string pss, string keys){
             if (keySize != 2048 && keySize != 3072 && keySize != 4096 )
             {
                 TempData["Error"] = "Tamanho de pk invalido.";
@@ -41,11 +41,14 @@ namespace OpenSign.Controllers
             //    return View();
             //}
 
-            string jsonPath = _keyService.GenerateRSAKeyPairJSON(keySize, pss, encmode);
+            //string jsonPath = _keyService.GenerateRSAKeyPairJSON(keySize, pss, encmode);
+            var jsonPath = _keyService.GenerateRSAKeyPairJSON(keySize, pss, encmode);
 
+            if(keys.Equals("privKey"))
+                return PhysicalFile(jsonPath.jsonfilePath, "application/json", Path.GetFileName(jsonPath.jsonfilePath));
 
-            return PhysicalFile(jsonPath, "application/json", Path.GetFileName(jsonPath));
-
+            if(keys.Equals("pubKey"))
+                return PhysicalFile(jsonPath.pubfilePath, "application/json", Path.GetFileName(jsonPath.pubfilePath));
 
             TempData["Success"] = $"Chaves {encmode.ToUpper()} de {keySize} bits geradas com sucesso.";
             return View();
