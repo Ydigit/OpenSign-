@@ -11,7 +11,6 @@ builder.Services.AddControllersWithViews();
 // Key Service will be saved for a KeyController to controll dependency inj we should register on Program.cs
 builder.Services.AddSingleton<KeyService>();
 
-
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
