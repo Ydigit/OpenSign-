@@ -1,3 +1,10 @@
+body, html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
 #particles-js {
     position: fixed;
     top: 0;
@@ -27,7 +34,12 @@
 }
 
 .card-title {
-    font-weight: 600;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.card img {
+    max-height: 160px;
 }
 
 .btn-warning {
@@ -40,9 +52,10 @@
 }
 
 .card {
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border-radius: 12px;
+    min-width: 320px;
+    max-width: 380px;
 }
+
 
     .card:hover {
         transform: scale(1.02);
@@ -70,11 +83,8 @@ a {
     text-decoration: underline;
 }
 
-html{
-    height: 100%;
-    margin: 0;
-    padding: 0;
-}
-body {
-    font-family: 'Share Tech Mono', monospace;
+.card-text {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    text-align: left;
 }

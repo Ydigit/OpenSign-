@@ -13,41 +13,69 @@
         <div class="row justify-content-center g-5">
             <!-- Card 1 -->
             <div class="col-md-4">
-                <div class="card bg-dark text-white d-flex flex-row align-items-center shadow h-100">
-                    <img src="@Url.Content("~/img/indexImgs/sign.png")" alt="Sign" style="width: 190px; object-fit: contain; padding: 1rem; ">
-                    <div class="card-body">
-                        <h5 class="card-title">Assinatura com Alternativas</h5>
-                        <p class="card-text">Assine documentos com campos variáveis ou múltiplas escolhas.</p>
-                        <a href="/Sign" class="btn btn-warning mt-2">Ir para Sign Workflow</a>
+                <div class="card bg-dark text-white shadow h-100 d-flex flex-column justify-content-between p-3">
+                    <!-- Imagem -->
+                    <div class="text-center">
+                        <img src="@Url.Content("~/img/indexImgs/sign.png")" alt="Sign" style="width: 190px; object-fit: contain;">
+                    </div>
+
+                    <!-- Texto -->
+                    <div class="mt-3">
+                        <h5 class="card-title">Signature with Alternatives</h5>
+                        <p class="card-text">
+                            Sign documents with dynamic placeholders and pre-approved values. Each combination is signed using RSA.
+                        </p>
+                    </div>
+
+                    <!-- Botão -->
+                    <div class="text-center mt-3">
+                        <a href="/Sign" class="btn btn-warning w-100">Go to Sign Workflow</a>
                     </div>
                 </div>
             </div>
 
             <!-- Card 2 -->
             <div class="col-md-4">
-                <div class="card bg-dark text-white d-flex flex-row align-items-center shadow h-100">
-                    <img src="@Url.Content("~/img/indexImgs/verify.png")" alt="Verify" style="width: 190px; object-fit: contain; padding: 1rem; ">
-                    <div class="card-body">
-                        <h5 class="card-title">Validação de Assinaturas</h5>
-                        <p class="card-text">Verifique a integridade dos documentos usando chaves públicas.</p>
-                        <a href="/ImportDocument" class="btn btn-warning mt-2">Ir para Validation Workflow</a>
+                <div class="card bg-dark text-white shadow h-100 d-flex flex-column justify-content-between p-3">
+                    <div class="text-center">
+                        <img src="@Url.Content("~/img/indexImgs/verify.png")" alt="Verify" style="width: 190px; object-fit: contain;">
+                    </div>
+
+                    <div class="mt-3">
+                        <h5 class="card-title">Signature Validation</h5>
+                        <p class="card-text">
+                            Validate signed documents using RSA or HMAC. Detect tampering and confirm authorization.
+                        </p>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <a href="/ImportDocument" class="btn btn-warning w-100">Go to Validation Workflow</a>
                     </div>
                 </div>
             </div>
 
             <!-- Card 3 -->
             <div class="col-md-4">
-                <div class="card bg-dark text-white d-flex flex-row align-items-center shadow h-100">
-                    <img src="@Url.Content("~/img/indexImgs/key.png")" alt="Keys" style="width: 190px; object-fit: contain; padding: 1rem; ">
-                    <div class="card-body">
-                        <h5 class="card-title">Geração de Chaves Seguras</h5>
-                        <p class="card-text">Crie chaves criptográficas protegidas por palavra-passe.</p>
-                        <a href="/Generate" class="btn btn-warning mt-2">Ir para Geração de Chaves</a>
+                <div class="card bg-dark text-white shadow h-100 d-flex flex-column justify-content-between p-3">
+                    <div class="text-center">
+                        <img src="@Url.Content("~/img/indexImgs/key.png")" alt="Keys" style="width: 190px; object-fit: contain;">
+                    </div>
+
+                    <div class="mt-3">
+                        <h5 class="card-title">Secure Key Generation</h5>
+                        <p class="card-text">
+                            Generate RSA keys with variable sizes and HMAC with a passphrase. Protected with AES-256 encryption.
+                        </p>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <a href="/Generate" class="btn btn-warning w-100">Go to Key Generation</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
 
 
 
