@@ -95,21 +95,27 @@ namespace OpenSignControllers
             var combinacoesAssinadas = new Dictionary<string, object>();
 
             foreach (var combinacao in combinacoes)
+{
+    string textoFinal = texto;
+
+            // Substitui apenas os placeholders com opções obrigatórias
+            for (int i = 0; i < fixedPlaceholders.Count; i++)
             {
-                string textoFinal = texto;
-                for (int i = 0; i < fixedPlaceholders.Count; i++)
-                {
-                    textoFinal = textoFinal.Replace(fixedPlaceholders[i], combinacao[i]);
-                }
-
-                var hmacHex = _hmacService.CalcularHmac(textoFinal, chaveHmac);
-
-                combinacoesAssinadas[hmacHex] = new
-                {
-                    text = textoFinal,
-                    hmac = hmacHex
-                };
+                textoFinal = textoFinal.Replace(fixedPlaceholders[i], combinacao[i]);
             }
+
+            // Remove campos de texto livre como [morada]
+            textoFinal = Regex.Replace(textoFinal, @"\[[^\]:\]]+\]", "");
+
+            
+            var hmacHex = _hmacService.CalcularHmac(textoFinal, chaveHmac);
+
+            combinacoesAssinadas[hmacHex] = new
+            {
+                text = textoFinal,
+                hmac = hmacHex
+            };
+        }
 
             return new
             {

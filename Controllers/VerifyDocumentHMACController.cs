@@ -95,22 +95,28 @@ namespace OpenSign.Controllers
                     .Where(k => k.Key != "template" && k.Key != "signedCombinations" && k.Key != "hmacKey" && !k.Key.StartsWith("__"))
                     .ToDictionary(k => k.Key, k => k.Value.ToString());
 
-                // Monta o texto final substituindo apenas os placeholders com opções fixas
-                string textoFinal = Regex.Replace(template, @"\[(\@?\w*)(:[^\]]*)?\]", m =>
+                // Monta o texto final substituindo todos os placeholders com os valores preenchidos (para mostrar ao utilizador)
+                string textoComFreeText = Regex.Replace(template, @"\[(\@?\w*)(:[^\]]*)?\]", m =>
                 {
-                    var keyName = m.Groups[1].Value;
-                    var hasOptions = m.Groups[2].Success;
-
-                    // Substitui apenas se for uma opção fixa e o utilizador forneceu valor
-                    if (hasOptions && respostas.ContainsKey(keyName))
-                        return respostas[keyName];
-
-                    // Caso contrário (Free Text), mantém o placeholder original (ex: [cidade])
-                    return m.Value;
+                    var key = m.Groups[1].Value;
+                    return respostas.ContainsKey(key) ? respostas[key] : "";
                 });
 
-                // Calcula o HMAC com o texto final e a chave fornecida
-                string hmacHex = _hmacService.CalcularHmac(textoFinal, hmacKey);
+                // Monta o texto para cálculo do HMAC (só com placeholders que têm opções fixas)
+                string textoParaHmac = Regex.Replace(template, @"\[(\@?\w*)(:[^\]]*)?\]", m =>
+                {
+                    var key = m.Groups[1].Value;
+                    var temOpcoes = m.Groups[2].Success;
+
+                    if (temOpcoes && respostas.ContainsKey(key))
+                        return respostas[key];
+
+                    // Ignora campos de texto livre para o HMAC
+                    return "";
+                });
+
+                // Calcula o HMAC com o texto para HMAC e a chave fornecida
+                string hmacHex = _hmacService.CalcularHmac(textoParaHmac, hmacKey);
 
                 // Verifica se o HMAC calculado existe nas assinaturas conhecidas
                 bool assinaturaValida = signedCombinations.ContainsKey(hmacHex);
@@ -121,7 +127,7 @@ namespace OpenSign.Controllers
                 // Prepara o JSON de resposta para exibir na interface
                 var outputJson = new
                 {
-                    selected_text = textoFinal,
+                    selected_text = textoComFreeText,
                     inputs = respostas,
                     hmac = hmacHex,
                     signature = assinatura,
@@ -131,7 +137,7 @@ namespace OpenSign.Controllers
 
                 ViewBag.OutputJson = JsonConvert.SerializeObject(outputJson, Formatting.Indented);
                 ViewBag.AssinaturaValida = assinaturaValida;
-                ViewBag.TextoFinal = textoFinal;
+                ViewBag.TextoFinal = textoComFreeText;
 
                 return View();
             }
