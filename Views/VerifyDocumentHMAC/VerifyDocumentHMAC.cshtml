@@ -63,13 +63,13 @@
     if ((bool)ViewBag.AssinaturaValida)
     {
         <div class="alert alert-success" role="alert">
-            ✅ Verificação aceite! A assinatura é válida.
+            ✅ Verification accepted! The signature is valid.
         </div>
     }
     else
     {
         <div class="alert alert-danger" role="alert">
-            ❌ Verificação falhou. A assinatura não é válida.
+            ❌ Verification unaccepted! The signature is invalid
         </div>
     }
 }
@@ -82,17 +82,5 @@
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script src="~/js/site.js"></script>
-    <script>
-        // Mostrar/ocultar a chave HMAC
-        document.getElementById("toggleHmacKey")?.addEventListener("click", function () {
-            const input = document.getElementById("hmacKey");
-            if (input.type === "password") {
-                input.type = "text";
-                this.innerHTML = '<i class="bi bi-eye-slash"></i>';
-            } else {
-                input.type = "password";
-                this.innerHTML = '<i class="bi bi-eye"></i>';
-            }
-        });
-    </script>
+    <script src="~/js/toggleHmacKey.js"></script>
 }
