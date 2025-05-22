@@ -1,0 +1,41 @@
+#particles-js {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, #45484a, #2e3338, #2a3b4a);
+    z-index: -1;
+}
+
+
+section.container {
+    color: #f3f3f3;
+    font-family: 'Share Tech Mono', monospace;
+}
+
+h2, h3 {
+    color: #ffd700;
+}
+
+ul {
+    margin-top: 1rem;
+    padding-left: 1.5rem;
+}
+
+    ul li {
+        margin-bottom: 0.5rem;
+        line-height: 1.5;
+    }
+
+hr {
+    border-color: #555;
+}
+
+.dark-box {
+    background-color: #2b2b2b;
+    color: #f1f1f1;
+    padding: 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+}

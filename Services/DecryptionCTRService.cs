@@ -24,10 +24,7 @@ public class DecryptionCTRService
                 throw new ArgumentException("Too much big nonce for 16 bytes AES block.");
 
             // Deriva a chave a partir da password
-            int num_iter = 100000;
-            //+++++++++++//tem que se reutilizar a func ddo rafa++++++++++++++
-            using var rfcDerive = new Rfc2898DeriveBytes(rawPassword, salt, num_iter, HashAlgorithmName.SHA256);
-            byte[] key = rfcDerive.GetBytes(32); //AES-256 = 32 bytes
+            byte[] key = DerivationService.DeriveKey(rawPassword, salt); //AES-256 = 32 bytes
             
             using var aes = Aes.Create();
             aes.Key = key;
