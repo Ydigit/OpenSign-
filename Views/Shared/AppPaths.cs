@@ -14,7 +14,7 @@ namespace OpenSign.Shared
         //generate path for PEM
         public static string GetKeyPathPEMpublic(string fileName)
         {
-            return Path.Combine(KeysPathpub, $"{fileName}.pem");
+            return Path.Combine(KeysPathpub, $"{fileName}.json");
         }
         public static string SecurePrivateBackupPathJSON(string fileName)
         {

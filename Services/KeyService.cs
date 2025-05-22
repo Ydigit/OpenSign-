@@ -53,7 +53,7 @@ public class KeyService
     //mediante o modo ele escolhe a cifra
 
 
-    public string GenerateRSAKeyPairJSON(int keySize, string rawpass, string encmode) // meter sempre pem
+    public (string jsonfilePath, string pubfilePath) GenerateRSAKeyPairJSON(int keySize, string rawpass, string encmode) // meter sempre pem
     {
         //prepare paths for the file location
         string dateTicks = DateTime.Now.Ticks.ToString();//momento de geracao
@@ -89,7 +89,6 @@ public class KeyService
                     var salt = passderivada.salt;
 
                     //guardar a chave publica 
-                    File.WriteAllText(pubfilePath, _publicKey);
             //Ate aqui gera as chaves
 
             if (encmode.Equals("aes-256-cbc"))
@@ -128,12 +127,15 @@ public class KeyService
                 throw new ArgumentException("Invalid encryption mode.");
             }
 
-            
+            var jsonDownloadPublicKey = new
+                {
+                    PublicKey = Convert.ToBase64String(Encoding.UTF8.GetBytes(_publicKey)),
+
+                };
 
             
-
-
             string jsonDownloadString = JsonSerializer.Serialize(jsonDownload);
+            string jsonDownloadStringPublicKey = JsonSerializer.Serialize(jsonDownloadPublicKey);
             // Verifica se a pasta securekeys/private existe
             string privateDirectory = Path.GetDirectoryName(jsonfilePath)!;
             if (!Directory.Exists(privateDirectory))
@@ -143,8 +145,10 @@ public class KeyService
 
             //guardar o JSON
             File.WriteAllText(jsonfilePath, jsonDownloadString);//escreve em string o json
+            File.WriteAllText(pubfilePath,jsonDownloadStringPublicKey);
 
-            return jsonfilePath;
+
+           return (jsonfilePath, pubfilePath);
 
         }
     }
