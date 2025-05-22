@@ -2,26 +2,26 @@
     ViewData["Title"] = "Verificar Assinatura HMAC";
 }
 
-<h2>Verificar Assinatura com HMAC</h2>
+<h2>Verify HMAC Signatures</h2>
 
 <div id="particles-js"></div>
 
 <!-- Formulário para carregar o JSON assinado e a chave HMAC -->
 <form method="post" enctype="multipart/form-data" asp-controller="VerifyDocumentHMAC" asp-action="VerifyDocumentHMAC">
     <div class="mb-3">
-        <label for="jsonFile" class="form-label">Selecione o arquivo JSON gerado</label>
+        <label for="jsonFile" class="form-label">Select JSON file generated</label>
         <input type="file" id="jsonFile" name="jsonFile" class="form-control" accept=".json" required />
     </div>
     <div class="mb-3">
-        <label for="hmacKey" class="form-label">Chave secreta HMAC</label>
+        <label for="hmacKey" class="form-label">HMAC Shared Secret Key</label>
         <div class="input-group">
-            <input type="password" id="hmacKey" name="hmacKey" class="form-control" placeholder="Digite a chave HMAC" required />
+            <input type="password" id="hmacKey" name="hmacKey" class="form-control" placeholder="Insert secret key" required />
             <button type="button" class="btn btn-outline-secondary" id="toggleHmacKey">
                 <i class="bi bi-eye"></i>
             </button>
         </div>
     </div>
-    <button type="submit" class="btn btn-success mt-3">Carregar JSON</button>
+    <button type="submit">Upload</button>
 </form>
 
 <!-- Se o template foi carregado com sucesso, mostra o formulário de preenchimento -->
@@ -53,16 +53,17 @@
             </div>
         }
 
-        <button type="submit" class="btn btn-primary">Verificar Assinatura</button>
+        <button type="submit">Verify</button>
     </form>
 }
 
 <!-- Resultado da verificação -->
 @if (ViewBag.OutputJson != null)
 {
-    <h3>Resultado:</h3>
+    <h3 style="color: white;">Result:</h3>
+
     <pre>@ViewBag.OutputJson</pre>
-    <p>Assinatura válida? <strong>@(ViewBag.AssinaturaValida ? "Sim" : "Não")</strong></p>
+    <p class="text-white">Verified Signature: <strong>@(ViewBag.AssinaturaValida ? "Yes" : "No")</strong></p>
 }
 
 @section Styles {
