@@ -1,6 +1,77 @@
 @{
+
+
     Layout = "_Layout";
     ViewData["Title"] = "Help";
 }
-<h2>Help</h2>
-<p>Little Help!</p>
+<div id="particles-js"></div>
+
+<section class="container mt-5">
+    <div class="p-4 rounded shadow-lg" style="background-color: #2b2b2b; color: #f1f1f1;">
+        <h2 class="mb-4">How does our system work?</h2>
+
+        <p>
+            In critical environments such as medicine and defense, it's not enough to fill in a document with any value —
+            it is essential to ensure that only <strong>combinations previously approved by a higher authority</strong>
+            can be used. Our system enables the creation of documents with dynamic fields (placeholders), where valid combinations
+            are digitally signed using <strong>RSA</strong> or authenticated using <strong>HMAC</strong>, ensuring:
+        </p>
+        <ul>
+            <li>Integrity of the document's content</li>
+            <li>Local cryptographic validation without requiring online reauthentication</li>
+            <li>Automatic rejection of unauthorized combinations</li>
+        </ul>
+
+        <hr class="my-5" />
+
+        <h3 class="mb-3">Use Case 1: FDA-validated medical prescription</h3>
+        <p>
+            An oncologist intends to prescribe an aggressive treatment to a patient. However, this treatment can only be used
+            if it has been <strong>pre-approved and digitally signed by the FDA</strong>. The system ensures that:
+        </p>
+        <ul>
+            <li>The doctor can only issue the prescription if the selected option is validated by the FDA's signature</li>
+            <li>Any attempt to tamper with the content (e.g., by a man-in-the-middle attacker) is detected and blocked</li>
+            <li>The patient receives only validated and authorized prescriptions</li>
+        </ul>
+
+        <hr class="my-5" />
+
+        <h3 class="mb-3">Use Case 2: Military procurement with high-assurance validation</h3>
+        <p>
+            A military officer submits a request to acquire weapons or critical components. All possible valid combinations
+            are <strong>pre-signed by a superior military authority</strong>. The system guarantees that:
+        </p>
+        <ul>
+            <li>Only approved options can be submitted for procurement</li>
+            <li>An attacker (internal or external) cannot inject invalid combinations since they cannot sign them</li>
+            <li>This reduces the risk of sabotage, operational failure, or threats to national or organizational security</li>
+        </ul>
+    </div>
+
+    <!-- Banner final -->
+    <div class="mt-5 w-100 d-flex align-items-center justify-content-center"
+         style="height: 120px;
+            background-image: url('@Url.Content("~/img/help/10.png")');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: #2b2b2b;
+            color: white;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.8rem;
+            text-shadow: 1px 1px 5px black;">
+
+    </div>
+
+
+
+</section>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/Help.css" />
+}
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="~/js/site.js"></script>
+}

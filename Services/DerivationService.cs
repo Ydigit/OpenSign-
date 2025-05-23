@@ -7,7 +7,7 @@ public class DerivationService{
     * function that generates the salt 
     * @param sizeSalt - lenght of the salt 
     */
-    private static byte[] genSalt(int salt_size){
+    public static byte[] genSalt(int salt_size){
         byte[] salt = new byte[salt_size];
 
         using (RandomNumberGenerator rand_gen = RandomNumberGenerator.Create()){
