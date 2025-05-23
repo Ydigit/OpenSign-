@@ -211,7 +211,7 @@ namespace PlaceholderTextApp.Controllers
 
                 // Criar o objeto RSA a partir da chave privada decifrada (em formato PEM)
                 using RSA rsa = RSA.Create();
-                rsa.ImportFromPem(decryptedPrivateKey.ToCharArray());
+                rsa.ImportPkcs8PrivateKey(Convert.FromBase64String(decryptedPrivateKey), out _);
 
                 //retorna logo a info assinada, sem contacto com a variavel sensível sk decifrada -> em Json
                 //evita expose de variavel sensível em memory leaks

@@ -3,8 +3,9 @@ using Newtonsoft.Json;
 using System.Text.RegularExpressions;
 using System.Text;
 using System.Security.Cryptography;
+using System.Linq;
 
-//ImportDoument
+// ImportDocument
 namespace PlaceholderTextApp.Controllers
 {
     [Route("ImportDocument")]
@@ -17,16 +18,21 @@ namespace PlaceholderTextApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ImportDocument(IFormFile jsonFile, IFormCollection form)
+        public async Task<IActionResult> ImportDocument(IFormFile jsonFile, IFormFile keyJsonFile, IFormCollection form)
         {
-            if (jsonFile != null)
+            if (jsonFile != null && keyJsonFile != null)
             {
                 using var reader = new StreamReader(jsonFile.OpenReadStream());
                 var json = JsonConvert.DeserializeObject<dynamic>(await reader.ReadToEndAsync());
 
+                using var pkReader = new StreamReader(keyJsonFile.OpenReadStream());
+                var pkFile = JsonConvert.DeserializeObject<dynamic>(await pkReader.ReadToEndAsync());
+                Console.WriteLine((string)pkFile.PublicKey);
+
                 ViewBag.Template = (string)json.original;
                 ViewBag.Placeholders = json.placeholders.ToObject<Dictionary<string, object>>();
                 ViewBag.SignedCombinations = json.signed_combinations;
+                ViewBag.PublicKey = (string)pkFile.PublicKey;
 
                 return View();
             }
@@ -34,9 +40,17 @@ namespace PlaceholderTextApp.Controllers
             {
                 string template = form["template"];
                 var signedCombinations = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(form["signedCombinations"]);
+                string publicKeyRaw = form["publicKey"];
+
+                if (string.IsNullOrEmpty(publicKeyRaw))
+                {
+                    Console.WriteLine("Erro: Chave pública não fornecida.");
+                    ViewBag.OutputJson = "Erro: Chave pública não fornecida.";
+                    return View();
+                }
 
                 var respostas = form
-                    .Where(k => k.Key != "template" && k.Key != "signedCombinations" && !k.Key.StartsWith("__"))
+                    .Where(k => k.Key != "template" && k.Key != "signedCombinations" && k.Key != "publicKey" && !k.Key.StartsWith("__"))
                     .ToDictionary(k => k.Key, k => k.Value.ToString());
 
                 string textoCompleto = Regex.Replace(template, @"\[(\@?\w*)(:[^\]]*)?\]", m =>
@@ -63,6 +77,17 @@ namespace PlaceholderTextApp.Controllers
                 if (assinaturaValida)
                 {
                     assinatura = match.signature;
+
+                    bool verf = VerificarAssinatura(publicKeyRaw, textoAssinado, assinatura, out string verifiedHash);
+
+                    if (verf)
+                    {
+                        Console.WriteLine("Assinatura válida.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Assinatura inválida.");
+                    }
                 }
 
                 var outputJson = new
@@ -82,6 +107,49 @@ namespace PlaceholderTextApp.Controllers
                 ViewBag.TextoAssinado = textoAssinado;
 
                 return View();
+            }
+        }
+
+        private bool VerificarAssinatura(string publicKeyRaw, string texto, string assinaturaBase64, out string hashBase64)
+        {
+            byte[] pk;
+            try
+            {
+                string cleanedKey = Regex.Replace(publicKeyRaw, "-{5}[ A-Z]+-{5}", "", RegexOptions.Multiline)
+                                        .Replace("\n", "")
+                                        .Replace("\r", "")
+                                        .Trim();
+                pk = Convert.FromBase64String(cleanedKey);
+            }
+            catch
+            {
+                hashBase64 = string.Empty;
+                return false;
+            }
+
+            byte[] dados = Encoding.UTF8.GetBytes(texto);
+            using SHA256 sha256 = SHA256.Create();
+            byte[] hash = sha256.ComputeHash(dados);
+            hashBase64 = Convert.ToBase64String(hash);
+
+            try
+            {
+                using RSA rsa = RSA.Create();
+                try
+                {
+                    rsa.ImportSubjectPublicKeyInfo(pk, out _);
+                }
+                catch
+                {
+                    rsa.ImportRSAPublicKey(pk, out _);
+                }
+
+                byte[] assinatura = Convert.FromBase64String(assinaturaBase64);
+                return rsa.VerifyHash(hash, assinatura, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+            }
+            catch
+            {
+                return false;
             }
         }
     }

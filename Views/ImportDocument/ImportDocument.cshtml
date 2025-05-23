@@ -6,7 +6,6 @@
 
 <div id="particles-js"></div>
 
-
 <form method="post" enctype="multipart/form-data" asp-controller="ImportDocument" asp-action="ImportDocument">
     <div class="mb-3">
         <label for="jsonFile" class="form-label">Selecione o arquivo JSON gerado</label>
@@ -19,44 +18,51 @@
     <button type="submit" class="btn btn-success mt-3">Carregar JSON</button>
 </form>
 
-
-
 @if (ViewBag.Template != null)
 {
-<hr />
-<form method="post" asp-controller="ImportDocument" asp-action="ImportDocument">
-    <input type="hidden" name="template" value="@ViewBag.Template" />
-    <input type="hidden" name="signedCombinations" value="@Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.SignedCombinations)" />
+    <hr />
+    <form method="post" asp-controller="ImportDocument" asp-action="ImportDocument">
+        <input type="hidden" name="template" value="@ViewBag.Template" />
+        <input type="hidden" name="signedCombinations" value="@Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.SignedCombinations)" />
+        <input type="hidden" name="publicKey" value="@ViewBag.PublicKey" />
 
-    @foreach (var item in (Dictionary<string, object>)ViewBag.Placeholders)
+        @foreach (var item in (Dictionary<string, object>)ViewBag.Placeholders)
         {
-    <div class="mb-3">
-        <label>@item.Key</label>
-        @if (item.Value is Newtonsoft.Json.Linq.JArray opcoes)
+            <div class="mb-3">
+                <label>@item.Key</label>
+                @if (item.Value is Newtonsoft.Json.Linq.JArray opcoes)
                 {
-        <select name="@item.Key" class="form-control">
-            @foreach (var opcao in opcoes)
+                    <select name="@item.Key" class="form-control">
+                        @foreach (var opcao in opcoes)
                         {
-            <option value="@opcao">@opcao</option>
+                            <option value="@opcao">@opcao</option>
                         }
-        </select>
+                    </select>
                 }
                 else
                 {
-        <input type="text" name="@item.Key" class="form-control" />
+                    <input type="text" name="@item.Key" class="form-control" />
                 }
-    </div>
+            </div>
         }
 
-    <button type="submit" class="btn btn-primary">Assinar Documento</button>
-</form>
+        <button type="submit" class="btn btn-primary">Assinar Documento</button>
+    </form>
+}
+
+@if (ViewBag.AssinaturaValida == true)
+{
+    <p><strong>✅ Assinatura válida.</strong></p>
+}
+else if (ViewBag.AssinaturaValida == false)
+{
+    <p><strong>❌ Assinatura inválida.</strong></p>
 }
 
 @if (ViewBag.OutputJson != null)
 {
-    <h3>Resultado:</h3>
+    <h4>JSON de Saída:</h4>
     <pre>@ViewBag.OutputJson</pre>
-    <p>Signature exists? <strong>@(ViewBag.AssinaturaValida ? "No" : "Yes")</strong></p>
 }
 
 @section Styles {
@@ -65,4 +71,3 @@
 
 <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 <script src="~/js/site.js"></script>
-}

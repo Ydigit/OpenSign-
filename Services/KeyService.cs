@@ -249,7 +249,10 @@ public class KeyService
     private string ExportPublicKeyPEM(RSA rsa)
     {
         byte[] publicKeyBytes = rsa.ExportSubjectPublicKeyInfo();
-        return PemEncode("PUBLIC KEY", publicKeyBytes);
+        string s = Convert.ToBase64String(publicKeyBytes);
+        Console.WriteLine(s);
+        //return PemEncode("PUBLIC KEY", publicKeyBytes);
+        return s;
     }
 
     /// <summary>
@@ -258,7 +261,9 @@ public class KeyService
     private string ExportPrivateKeyPEM(RSA rsa)
     {
         byte[] privateKeyBytes = rsa.ExportPkcs8PrivateKey();
-        return PemEncode("PRIVATE KEY", privateKeyBytes);
+        string s = Convert.ToBase64String(privateKeyBytes);
+        //return PemEncode("PRIVATE KEY", privateKeyBytes);
+        return s;
     }
 
     /// <summary>
