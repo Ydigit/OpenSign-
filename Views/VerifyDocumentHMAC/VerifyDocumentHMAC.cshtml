@@ -32,6 +32,7 @@
         <input type="hidden" name="template" value="@ViewBag.Template" />
         <input type="hidden" name="signedCombinations" value="@Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.SignedCombinations)" />
         <input type="hidden" name="hmacKey" value="@ViewBag.HmacKey" />
+        <input type="hidden" name="saltBase64" value="@ViewBag.SaltBase64" />
 
         @foreach (var item in (Dictionary<string, object>)ViewBag.Placeholders)
         {

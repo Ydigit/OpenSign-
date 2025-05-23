@@ -91,12 +91,14 @@ namespace OpenSignControllers
                 }
             }
 
+            // Derivar o "segredo" que vai ser usado para calcular o HMAC
+            byte[] salt = DerivationService.genSalt(16);
             var combinacoes = GerarCombinacoes(fixedOptionValues);
             var combinacoesAssinadas = new Dictionary<string, object>();
 
             foreach (var combinacao in combinacoes)
-{
-    string textoFinal = texto;
+            {
+            string textoFinal = texto;
 
             // Substitui apenas os placeholders com opções obrigatórias
             for (int i = 0; i < fixedPlaceholders.Count; i++)
@@ -108,7 +110,7 @@ namespace OpenSignControllers
             textoFinal = Regex.Replace(textoFinal, @"\[[^\]:\]]+\]", "");
 
             
-            var hmacHex = _hmacService.CalcularHmac(textoFinal, chaveHmac);
+            var hmacHex = _hmacService.CalcularHmac(textoFinal, chaveHmac, salt);
 
             combinacoesAssinadas[hmacHex] = new
             {
@@ -122,6 +124,7 @@ namespace OpenSignControllers
                 original = texto,
                 placeholders = placeholders,
                 signed_combinations = combinacoesAssinadas,
+                salt = Convert.ToBase64String(salt),
                 signature_algorithm = "HMAC-SHA256 (hex)"
             };
         }
