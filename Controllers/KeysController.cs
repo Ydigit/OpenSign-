@@ -1,6 +1,6 @@
 //Aqui serve so para gerar e cifrar
 
-
+using System.IO.Compression;
 using Microsoft.AspNetCore.Mvc;
 
 namespace OpenSign.Controllers
@@ -44,11 +44,22 @@ namespace OpenSign.Controllers
             //string jsonPath = _keyService.GenerateRSAKeyPairJSON(keySize, pss, encmode);
             var jsonPath = _keyService.GenerateRSAKeyPairJSON(keySize, pss, encmode);
 
-            if(keys.Equals("privKey"))
-                return PhysicalFile(jsonPath.jsonfilePath, "application/json", Path.GetFileName(jsonPath.jsonfilePath));
+            // cria um arquivo .zip com 1 file json com a private key e outro com a public key
+            if(keys.Equals("genKeys")){
+                using (var memoryStream = new MemoryStream())
+                {
+                    using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true)){
+                        archive.CreateEntryFromFile(jsonPath.jsonfilePath, Path.GetFileName(jsonPath.jsonfilePath));
+                        archive.CreateEntryFromFile(jsonPath.pubfilePath, Path.GetFileName(jsonPath.pubfilePath));
+                    }
 
-            if(keys.Equals("pubKey"))
-                return PhysicalFile(jsonPath.pubfilePath, "application/json", Path.GetFileName(jsonPath.pubfilePath));
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+                    return File(memoryStream.ToArray(), "application/zip", "rsa_keypair.zip");
+                }
+                //return PhysicalFile(jsonPath.jsonfilePath, "application/json", Path.GetFileName(jsonPath.jsonfilePath));
+            }
+            //if(keys.Equals("pub"))
+                //return PhysicalFile(jsonPath.pubfilePath, "application/json", Path.GetFileName(jsonPath.pubfilePath));
 
             TempData["Success"] = $"Chaves {encmode.ToUpper()} de {keySize} bits geradas com sucesso.";
             return View();

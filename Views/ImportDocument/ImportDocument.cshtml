@@ -14,7 +14,7 @@
     </div>
     <div class="mb-3">
         <label for="keyJsonFile" class="form-label">Selecione o arquivo JSON chave publica</label>
-        <input type="file" id="keyJsonFilev" name="keyJsonFile" class="form-control" accept=".json" />
+        <input type="file" id="keyJsonFile" name="keyJsonFile" class="form-control" accept=".json" />
     </div>
     <button type="submit" class="btn btn-success mt-3">Carregar JSON</button>
 </form>
@@ -27,6 +27,7 @@
 <form method="post" asp-controller="ImportDocument" asp-action="ImportDocument">
     <input type="hidden" name="template" value="@ViewBag.Template" />
     <input type="hidden" name="signedCombinations" value="@Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.SignedCombinations)" />
+    <input type="hidden" name="PublicKey" value="@ViewBag.PublicKey" />
 
     @foreach (var item in (Dictionary<string, object>)ViewBag.Placeholders)
         {

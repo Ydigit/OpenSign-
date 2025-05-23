@@ -52,7 +52,6 @@ public class KeyService
     //meter : iv, salt, pk, skc, modo
     //mediante o modo ele escolhe a cifra
 
-
     public (string jsonfilePath, string pubfilePath) GenerateRSAKeyPairJSON(int keySize, string rawpass, string encmode) // meter sempre pem
     {
         //prepare paths for the file location
@@ -129,13 +128,18 @@ public class KeyService
 
             var jsonDownloadPublicKey = new
                 {
-                    PublicKey = Convert.ToBase64String(Encoding.UTF8.GetBytes(_publicKey)),
-
+                    //PublicKey = Convert.ToBase64String(Encoding.UTF8.GetBytes(_publicKey)),
+                    PublicKey = _publicKey,
                 };
 
+
+            var options = new JsonSerializerOptions
+            {
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            };
             
             string jsonDownloadString = JsonSerializer.Serialize(jsonDownload);
-            string jsonDownloadStringPublicKey = JsonSerializer.Serialize(jsonDownloadPublicKey);
+            string jsonDownloadStringPublicKey = JsonSerializer.Serialize(jsonDownloadPublicKey, options);
             // Verifica se a pasta securekeys/private existe
             string privateDirectory = Path.GetDirectoryName(jsonfilePath)!;
             if (!Directory.Exists(privateDirectory))
@@ -249,7 +253,8 @@ public class KeyService
     private string ExportPublicKeyPEM(RSA rsa)
     {
         byte[] publicKeyBytes = rsa.ExportSubjectPublicKeyInfo();
-        return PemEncode("PUBLIC KEY", publicKeyBytes);
+        //return PemEncode("PUBLIC KEY", publicKeyBytes);
+        return Convert.ToBase64String(publicKeyBytes);
     }
 
     /// <summary>
@@ -257,14 +262,15 @@ public class KeyService
     /// </summary>
     private string ExportPrivateKeyPEM(RSA rsa)
     {
-        byte[] privateKeyBytes = rsa.ExportPkcs8PrivateKey();
-        return PemEncode("PRIVATE KEY", privateKeyBytes);
+        byte[] privateKeyBytes = rsa.ExportPkcs8PrivateKey();   
+        //return PemEncode("PRIVATE KEY", privateKeyBytes);
+        return Convert.ToBase64String(privateKeyBytes);
     }
 
     /// <summary>
     /// Encodes the given byte array in PEM format with the specified label.
     /// </summary>
-    private string PemEncode(string label, byte[] data)
+    public static string PemEncode(string label, byte[] data)
     {
         var builder = new StringBuilder();
         builder.AppendLine($"-----BEGIN {label}-----");

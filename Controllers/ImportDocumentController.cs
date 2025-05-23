@@ -17,16 +17,20 @@ namespace PlaceholderTextApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ImportDocument(IFormFile jsonFile, IFormCollection form)
+        public async Task<IActionResult> ImportDocument(IFormFile jsonFile, IFormFile keyJsonFile,IFormCollection form)
         {
-            if (jsonFile != null)
+            if (jsonFile != null && keyJsonFile != null)
             {
                 using var reader = new StreamReader(jsonFile.OpenReadStream());
                 var json = JsonConvert.DeserializeObject<dynamic>(await reader.ReadToEndAsync());
 
+                using var pkReader = new StreamReader(keyJsonFile.OpenReadStream());
+                var pkFile = JsonConvert.DeserializeObject<dynamic>(await pkReader.ReadToEndAsync());
+
                 ViewBag.Template = (string)json.original;
                 ViewBag.Placeholders = json.placeholders.ToObject<Dictionary<string, object>>();
                 ViewBag.SignedCombinations = json.signed_combinations;
+                ViewBag.PublicKey = (string)pkFile.PublicKey;
 
                 return View();
             }
@@ -34,6 +38,8 @@ namespace PlaceholderTextApp.Controllers
             {
                 string template = form["template"];
                 var signedCombinations = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(form["signedCombinations"]);
+
+                string publicKeyBase64 = form["PublicKey"];
 
                 var respostas = form
                     .Where(k => k.Key != "template" && k.Key != "signedCombinations" && !k.Key.StartsWith("__"))
@@ -55,14 +61,27 @@ namespace PlaceholderTextApp.Controllers
                 byte[] dados = Encoding.UTF8.GetBytes(textoAssinado);
                 using SHA256 sha256 = SHA256.Create();
                 byte[] hash = sha256.ComputeHash(dados);
-                string hashBase64 = Convert.ToBase64String(hash);
+                string hashBase64 = Convert.ToBase64String(hash);          
 
                 string? assinatura = null;
                 bool assinaturaValida = signedCombinations.TryGetValue(hashBase64, out var match);
 
                 if (assinaturaValida)
                 {
+                    // signed hash 
                     assinatura = match.signature;
+
+                    // Import public key 
+                    using RSA rsa = RSA.Create();
+                    byte[] pk_byte = Convert.FromBase64String(publicKeyBase64);
+                    rsa.ImportSubjectPublicKeyInfo(pk_byte, out _);
+                    
+                    // Base64 to byte[] conversion needed for verification step
+                    byte[] hashByte = Convert.FromBase64String(hashBase64);
+                    byte[] assinaturaByte = Convert.FromBase64String(assinatura);
+
+                    bool verf = rsa.VerifyHash(hashByte, assinaturaByte, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);    
+                    Console.WriteLine(verf);
                 }
 
                 var outputJson = new
