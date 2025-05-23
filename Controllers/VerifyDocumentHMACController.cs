@@ -61,13 +61,18 @@ namespace OpenSign.Controllers
                 ViewBag.SignedCombinations = json.signed_combinations ?? new Dictionary<string, object>();
                 ViewBag.HmacKey = hmacKey;
 
+                // Extrair o salt do JSON (se existir)
+                string saltBase64 = json.salt != null ? (string)json.salt : "";
+                ViewBag.SaltBase64 = saltBase64;
+
                 return View(); // Volta à view para mostrar os campos preenchíveis
             }
             else
             {
-                // Se os dados foram enviados via formulário (segunda etapa)
+                // Dados enviados para o form
                 if (!form.TryGetValue("template", out var templateValue) ||
-                    !form.TryGetValue("signedCombinations", out var signedJsonValue))
+                    !form.TryGetValue("signedCombinations", out var signedJsonValue)||
+                    !form.TryGetValue("saltBase64", out var saltBase64Value))
                 {
                     TempData["Error"] = "Dados do formulário em falta.";
                     return View();
@@ -75,6 +80,7 @@ namespace OpenSign.Controllers
 
                 string template = templateValue!;
                 string signedJson = signedJsonValue!;
+                string saltBase64 = saltBase64Value!; 
 
                 if (string.IsNullOrWhiteSpace(template) || string.IsNullOrWhiteSpace(signedJson))
                 {
@@ -115,8 +121,10 @@ namespace OpenSign.Controllers
                     return "";
                 });
 
+                byte[] salt = Convert.FromBase64String(saltBase64);
+
                 // Calcula o HMAC com o texto para HMAC e a chave fornecida
-                string hmacHex = _hmacService.CalcularHmac(textoParaHmac, hmacKey);
+                string hmacHex = _hmacService.CalcularHmac(textoParaHmac, hmacKey, salt);
 
                 // Verifica se o HMAC calculado existe nas assinaturas conhecidas
                 bool assinaturaValida = signedCombinations.ContainsKey(hmacHex);
@@ -132,6 +140,7 @@ namespace OpenSign.Controllers
                     hmac = hmacHex,
                     signature = assinatura,
                     signature_matched = assinaturaValida,
+                    salt = saltBase64,
                     signature_algorithm = "HMAC-SHA256 (hex)"
                 };
 

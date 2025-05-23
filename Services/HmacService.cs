@@ -18,15 +18,12 @@ namespace OpenSign.Services
                 // Extrai o conteúdo original e o HMAC fornecido no JSON
                 string? originalContent = signedData["content"]?.ToString();
                 string? hmacProvided = signedData["hmac"]?.ToString();
+                string? saltBase64 = signedData["salt"]?.ToString();
 
-                // Se faltar qualquer um dos dois, a verificação falha
-                if (string.IsNullOrEmpty(originalContent) || string.IsNullOrEmpty(hmacProvided))
-                {
-                    return false;
-                }
+                var salt = Convert.FromBase64String(saltBase64);
 
                 // Recalcula o HMAC localmente com a chave fornecida
-                string computedHmac = CalcularHmac(originalContent, secretKey);
+                string computedHmac = CalcularHmac(originalContent, secretKey, salt);
 
                 // Compara os HMACs de forma segura (protege contra ataques de timing)
                 return CryptographicOperations.FixedTimeEquals(
@@ -42,14 +39,15 @@ namespace OpenSign.Services
         }
 
         // Calcula um HMAC-SHA256 em formato hexadecimal
-        public string CalcularHmac(string message, string key)
+        public String CalcularHmac(string message, string key, byte[] salt)
         {
-            // Codifica a chave e a mensagem para bytes
-            var keyBytes = Encoding.UTF8.GetBytes(key);
+
+            // Deriva a chave usando o salt já dado
+            var chaveDerivada = DerivationService.DeriveKey(key, salt);
             var messageBytes = Encoding.UTF8.GetBytes(message);
 
             // Cria o HMAC-SHA256 com a chave
-            using var hmac = new HMACSHA256(keyBytes);
+            using var hmac = new HMACSHA256(chaveDerivada);
             var hashBytes = hmac.ComputeHash(messageBytes); // Aplica o hash
 
             // Converte o resultado para string hexadecimal (lowercase)
