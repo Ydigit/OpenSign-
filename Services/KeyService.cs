@@ -72,7 +72,7 @@ public class KeyService
                     //file paths
                      pubfilePath = AppPaths.GetKeyPathPEMpublic($"pk-{dateTicks}");
                      //tira o da key
-                     jsonfilePath = AppPaths.SecurePrivateBackupPathJSON($"skFile-{dateTicks}");
+                     jsonfilePath = AppPaths.SecurePrivateBackupPathJSON($"sk-{dateTicks}");
                     //Check if the directory exists, if not create it
                     string directory = Path.GetDirectoryName(pubfilePath)!;
                     if (!Directory.Exists(directory))
