@@ -40,6 +40,7 @@
                 @if (item.Value is Newtonsoft.Json.Linq.JArray opcoes)
                 {
                     <select name="@item.Key" class="form-control">
+                        <option disabled selected value="">-- selecione uma opção --</option>
                         @foreach (var opcao in opcoes)
                         {
                             <option value="@opcao">@opcao</option>

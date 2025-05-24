@@ -149,6 +149,7 @@ namespace PlaceholderTextApp.Controllers
 
                 // Envia os dados para a view para visualização pelo utilizador
                 ViewBag.OutputJson = JsonConvert.SerializeObject(outputJson, Formatting.Indented);
+                ViewBag.Assinatura = assinatura ?? "N/A";
                 ViewBag.AssinaturaValida = assinaturaValida;
                 ViewBag.TextoFinal = textoCompleto;
                 ViewBag.TextoAssinado = textoAssinado;

@@ -6,51 +6,49 @@
 
 <div id="particles-js"></div>
 
-
 <form method="post" enctype="multipart/form-data" asp-controller="ImportDocument" asp-action="ImportDocument">
     <div class="mb-3">
         <label for="jsonFile" class="form-label">Selecione o arquivo JSON gerado</label>
-        <input type="file" id="jsonFile" name="jsonFile" class="form-control" accept=".json" />
+        <input type="file" id="jsonFile" name="jsonFile" class="form-control" accept=".json" required />
     </div>
     <div class="mb-3">
-        <label for="keyJsonFile" class="form-label">Selecione o arquivo JSON chave publica</label>
-        <input type="file" id="keyJsonFile" name="keyJsonFile" class="form-control" accept=".json" />
+        <label for="keyJsonFile" class="form-label">Selecione o arquivo JSON chave pública</label>
+        <input type="file" id="keyJsonFile" name="keyJsonFile" class="form-control" accept=".json" required />
     </div>
     <button type="submit" class="btn btn-success mt-3">Carregar JSON</button>
 </form>
 
-
-
 @if (ViewBag.Template != null)
 {
-<hr />
-<form method="post" asp-controller="ImportDocument" asp-action="ImportDocument">
-    <input type="hidden" name="template" value="@ViewBag.Template" />
-    <input type="hidden" name="signedCombinations" value="@Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.SignedCombinations)" />
-    <input type="hidden" name="PublicKey" value="@ViewBag.PublicKey" />
+    <hr />
+    <form method="post" asp-controller="ImportDocument" asp-action="ImportDocument">
+        <input type="hidden" name="template" value="@ViewBag.Template" />
+        <input type="hidden" name="signedCombinations" value="@Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.SignedCombinations)" />
+        <input type="hidden" name="PublicKey" value="@ViewBag.PublicKey" />
 
-    @foreach (var item in (Dictionary<string, object>)ViewBag.Placeholders)
+        @foreach (var item in (Dictionary<string, object>)ViewBag.Placeholders)
         {
-    <div class="mb-3">
-        <label>@item.Key</label>
-        @if (item.Value is Newtonsoft.Json.Linq.JArray opcoes)
+            <div class="mb-3">
+                <label>@item.Key</label>
+                @if (item.Value is Newtonsoft.Json.Linq.JArray opcoes)
                 {
-        <select name="@item.Key" class="form-control">
-            @foreach (var opcao in opcoes)
+                    <select name="@item.Key" class="form-control" required>
+                        <option disabled selected value="">-- selecione uma opção --</option>
+                        @foreach (var opcao in opcoes)
                         {
-            <option value="@opcao">@opcao</option>
+                            <option value="@opcao">@opcao</option>
                         }
-        </select>
+                    </select>
                 }
                 else
                 {
-        <input type="text" name="@item.Key" class="form-control" />
+                    <input type="text" name="@item.Key" class="form-control" required />
                 }
-    </div>
+            </div>
         }
 
-    <button type="submit" class="btn btn-primary">Assinar Documento</button>
-</form>
+        <button type="submit" class="btn btn-primary">Assinar Documento</button>
+    </form>
 }
 
 @if (ViewBag.OutputJson != null)
@@ -82,20 +80,22 @@
 
             <div class="mb-3">
                 <label class="form-label fw-bold">Assinatura (Base64):</label>
-                <textarea class="form-control" rows="5" readonly>@(ViewBag.AssinaturaValida != null ? Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(ViewBag.OutputJson)?.signature : "Não disponível")</textarea>
+                <textarea class="form-control" rows="5" readonly>@ViewBag.Assinatura</textarea>
             </div>
-
         </div>
     </div>
 }
 
-
+@if (ViewBag.OutputJson != null && ViewBag.TextoFinal == "")
+{
+    <div class="alert alert-warning mt-3" role="alert">
+        ⚠️ @ViewBag.OutputJson
+    </div>
+}
 
 @section Styles {
     <link rel="stylesheet" href="~/css/Generate.css" />
 }
 
 <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-
 <script src="~/js/site.js"></script>
-
