@@ -47,11 +47,73 @@
             <li>An attacker (internal or external) cannot inject invalid combinations since they cannot sign them</li>
             <li>This reduces the risk of sabotage, operational failure, or threats to national or organizational security</li>
         </ul>
+
+
+        <div class="container mt-5">
+            <div class="text-center">
+                <h3 class="mb-3">Attack Attempt</h3>
+                <img src="@Url.Content("~/img/help/attackD.png")"
+                     alt="Attack Diagram"
+                     class="img-fluid"
+                     style="width: 100%; height: auto; border-radius: 10px;">
+            </div>
+            <div class="mt-4" style="max-width: 1000px; margin: auto; text-align: justify;">
+                <p>
+                    The <strong>OpenSign</strong> system is designed to ensure that digital documents containing
+                    placeholders or multiple-choice fields can be securely signed — even in highly sensitive contexts
+                    like healthcare, legal contracts, or government approvals.
+                </p>
+                <p>
+                    With a combination of <strong>RSA digital signatures</strong>, <strong>AES-256 encryption</strong> for protecting private keys,
+                    and secure placeholder validation, OpenSign guarantees document integrity and authenticity
+                    even if attackers attempt to manipulate the content.
+                </p>
+                <ul>
+                    <li>Private keys are encrypted using AES-256 and a password-derived key (HMAC-SHA256);</li>
+                    <li>Each valid placeholder combination can be individually signed to prevent unauthorized completions.</li>
+                </ul>
+                <p>
+                    Even in the event of a targeted system breach (e.g., through malware or privilege escalation),
+                    any forged or altered documents will fail validation by end users.
+                    <strong>OpenSign protects trust, privacy, and digital integrity</strong>.
+                </p>
+            </div>
+        </div>
     </div>
 
-    <!-- Banner final -->
-    <div class="mt-5 w-100 d-flex align-items-center justify-content-center"
-         style="height: 120px;
+
+    <div class="p-4 rounded shadow-lg" style="background-color: #2b2b2b; color: #f1f1f1;">
+        <div class="container mt-5 text-center">
+            <h4 class="mb-3">Did you enjoy our work?</h4>
+            <img src="@Url.Content("~/img/help/openteam.png")"
+                 alt="Attack Diagram"
+                 class="img-fluid"
+                 style="width: 60%; height: auto; border-radius: 30px;">
+            <p class="mt-4 px-4" style="max-width: 800px; margin: auto; text-align: justify;">
+                Through OpenSign, we strive to promote a <strong>safer and more transparent digital world</strong>.
+                Our goal is to empower individuals and organizations to protect their data, their integrity,
+                and their right to privacy — one signature at a time.
+                We believe in building <strong>trustworthy tools</strong> that respect ethical values and help shape a
+                more secure cyberspace for everyone.
+            </p>
+
+            <!-- Contacto -->
+            <div class="mt-4">
+                <p class="mb-4">
+                    If you would like to get in touch with the <strong>team lead</strong> or have any questions,
+                    feel free to reach out via email.
+                </p>
+                <a href="mailto:caminantegeral@protonmail.com" class="btn btn-primary btn-lg">
+                    📧 Contact the Team Lead
+                </a>
+            </div>
+
+
+        </div>
+
+        <!-- Banner final -->
+        <div class="mt-5 w-100 d-flex align-items-center justify-content-center"
+             style="height: 120px;
             background-image: url('@Url.Content("~/img/help/10.png")');
             background-size: contain;
             background-position: center;
@@ -62,7 +124,9 @@
             font-size: 1.8rem;
             text-shadow: 1px 1px 5px black;">
 
-    </div>
+        </div>
+
+
 
 
 
