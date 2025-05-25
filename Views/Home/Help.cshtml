@@ -82,6 +82,48 @@
     </div>
 
 
+    <hr class="my-5" />
+
+    <div class="p-4 rounded shadow-lg" style="background-color: #2b2b2b; color: #f1f1f1;">
+
+        <div class="container mt-5">
+            <div class="text-center">
+                <h3 class="mb-4">Application Flow</h3>
+                <img src="@Url.Content("~/img/help/AppDiagraam.png")"
+                     alt="OpenSign Flow Diagram"
+                     class="img-fluid"
+                     style="width: 100%; max-width: 1000px; border-radius: 10px;" />
+            </div>
+            <div class="mt-4" style="max-width: 1000px; margin: auto; text-align: justify;">
+                <p>
+                    The following diagram illustrates the end-to-end flow of the <strong>OpenSign</strong> application,
+                    from RSA key generation to final document validation. It outlines how secure document creation and
+                    cryptographic protection are handled step-by-step by the system.
+                </p>
+                <p>
+                    This flowchart was modeled using <strong>Visual Paradigm</strong>, adhering to a structured methodology
+                    inspired by Polish system modeling practices. The style follows the teachings of
+                    <a href="https://historia.agh.edu.pl/wiki/Ma%C5%82gorzata_Maria_%C5%BBabi%C5%84ska-Rakoczy" target="_blank">
+                        Dr. Małgorzata Maria Żabińska-Rakoczy
+                    </a> from the <strong>AGH University of Science and Technology</strong> in Poland.
+                    Some members of the OpenSign development team had the opportunity to maintain contact with her through academic exchange,
+                    and her recommendations—particularly regarding system abstraction and validation-centric architecture—greatly influenced this diagram.
+                </p>
+                <ul>
+                    <li>Users generate RSA key pairs with AES-256 encryption using a password-derived key.</li>
+                    <li>Documents are authored with placeholders supporting free text and multiple-choice options.</li>
+                    <li>Valid placeholder combinations are digitally signed (RSA) or authenticated (HMAC).</li>
+                    <li>Document validation ensures only authorized content is accepted by verifying the cryptographic signatures.</li>
+                </ul>
+                <p>
+                    This visual model helps supervisors, reviewers, and auditors clearly understand the system's secure workflow and layered defenses.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-bottom: 50px;"></div>
+
     <div class="p-4 rounded shadow-lg" style="background-color: #2b2b2b; color: #f1f1f1;">
         <div class="container mt-5 text-center">
             <h4 class="mb-3">Did you enjoy our work?</h4>
@@ -97,13 +139,13 @@
                 more secure cyberspace for everyone.
             </p>
 
-            <!-- Contacto -->
+            <!-- Contact -->
             <div class="mt-4">
                 <p class="mb-4">
                     If you would like to get in touch with the <strong>team lead</strong> or have any questions,
                     feel free to reach out via email.
                 </p>
-                <a href="mailto:caminantegeral@protonmail.com" class="btn btn-primary btn-lg">
+                <a href="mailto:caminantegeral@protonmail.com" class="btn-contact-yellow">
                     📧 Contact the Team Lead
                 </a>
             </div>
@@ -111,7 +153,7 @@
 
         </div>
 
-        <!-- Banner final -->
+        <!-- Final Banner -->
         <div class="mt-5 w-100 d-flex align-items-center justify-content-center"
              style="height: 120px;
             background-image: url('@Url.Content("~/img/help/10.png")');

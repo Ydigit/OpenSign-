@@ -1,4 +1,4 @@
-#particles-js {
+﻿#particles-js {
     position: fixed;
     top: 0;
     left: 0;
@@ -39,3 +39,24 @@ hr {
     border-radius: 0.75rem;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
 }
+
+.btn-contact-yellow {
+    display: inline-block;
+    background-color: #ffd700;
+    color: black;
+    font-weight: bold;
+    font-family: 'Share Tech Mono', monospace;
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 50px; /* 🔁 Arredondado */
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+    .btn-contact-yellow:hover {
+        background-color: #9c9c16;
+        color: white;
+        transform: translateY(-2px);
+    }
