@@ -4,23 +4,20 @@ using Newtonsoft.Json.Linq;
 
 namespace OpenSign.Services
 {
-    /**
-     * @class HmacService
-     * @brief Service responsible for computing and verifying HMACs (Hash-based Message Authentication Codes).
-     */
+    /// @class HmacService
+    /// @brief Service responsible for computing and verifying HMACs (Hash-based Message Authentication Codes).
     public class HmacService
     {
-        /**
-         * @brief Verifies whether the provided HMAC matches the content and secret key.
-         *
-         * This method parses a signed JSON object to extract the original content, the provided HMAC,
-         * and the salt. It then derives a key from the password and salt, computes a local HMAC, and
-         * compares it securely against the provided one using constant-time comparison.
-         *
-         * @param signedJson The signed JSON string containing "content", "hmac", and "salt".
-         * @param secretKey The password used to derive the HMAC key.
-         * @return true if the HMAC is valid and matches; false otherwise.
-         */
+        ///@brief Verifies whether the provided HMAC matches the content and secret key.
+        /// 
+        /// This method parses a signed JSON object to extract the original content, the provided HMAC,
+        /// 
+        /// and the salt. It then derives a key from the password and salt, computes a local HMAC, and
+        /// 
+        /// compares it securely against the provided one using constant-time comparison.
+        /// @param signedJson The signed JSON string containing "content", "hmac", and "salt".
+        /// @param secretKey The password used to derive the HMAC key.
+        /// @return true if the HMAC is valid and matches; false otherwise.
         public bool VerificarHmac(string signedJson, string secretKey)
         {
             try
@@ -49,17 +46,15 @@ namespace OpenSign.Services
             }
         }
 
-        /**
-         * @brief Computes an HMAC-SHA256 from a message and a derived key.
-         *
-         * The key is derived using PBKDF2 from the given password and salt. The output HMAC is returned
-         * as a lowercase hexadecimal string.
-         *
-         * @param message The message to sign.
-         * @param key The password used to derive the cryptographic key.
-         * @param salt The salt used during key derivation.
-         * @return The computed HMAC as a hexadecimal string.
-         */
+        ///@brief Computes an HMAC-SHA256 from a message and a derived key.
+        /// 
+        /// The key is derived using PBKDF2 from the given password and salt. The output HMAC is returned
+        /// 
+        /// as a lowercase hexadecimal string.
+        /// @param message The message to sign.
+        /// @param key The password used to derive the cryptographic key.
+        /// @param salt The salt used during key derivation.
+        /// @return The computed HMAC as a hexadecimal string.
         public string CalcularHmac(string message, string key, byte[] salt)
         {
 
