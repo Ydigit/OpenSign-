@@ -5,21 +5,16 @@ using System.Text.RegularExpressions;
 
 namespace OpenSign.Controllers
 {
-    /**
-     * @class VerifyDocumentHMACController
-     * @brief Controller responsible for verifying documents using HMAC signatures.
-     *
-     * This controller handles both the upload of JSON templates containing placeholders and
-     * the verification of user-submitted input against signed combinations using HMAC-SHA256.
-     */
+    ////@class VerifyDocumentHMACController
+    ///@brief Controller responsible for verifying documents using HMAC signatures.
+    ///@brief This controller handles both the upload of JSON templates containing placeholders and
+    /// @brief the verification of user-submitted input against signed combinations using HMAC-SHA256.
     [Route("VerifyDocumentHMAC")]
     public class VerifyDocumentHMACController : Controller
     {
         private readonly HmacService _hmacService;
 
-        /**
-         * @brief Constructor that initializes the HMAC service.
-         */
+        ///@brief Constructor that initializes the HMAC service.
         public VerifyDocumentHMACController()
         {
             _hmacService = new HmacService();
@@ -31,16 +26,13 @@ namespace OpenSign.Controllers
             return View();
         }
 
-        /**
-         * @brief Handles the POST request to verify a document using HMAC.
-         *
-         * Accepts a JSON file or form fields, reconstructs the message using user inputs,
-         * computes the HMAC, and checks it against signed combinations in the JSON file.
-         *
-         * @param jsonFile The uploaded JSON file (optional if form fields are used).
-         * @param form The form collection containing placeholders, HMAC key, and salt.
-         * @return A view showing whether the HMAC matched a valid signature.
-         */
+        /// @brief Handles the POST request to verify a document using HMAC.
+        ///
+        /// Accepts a JSON file or form fields, reconstructs the message using user inputs,computes the HMAC, and checks it against signed combinations in the JSON file.
+        /// @param jsonFile The uploaded JSON file (optional if form fields are used).
+        /// @param form The form collection containing placeholders, HMAC key, and salt.
+        /// @return A view showing whether the HMAC matched a valid signature.
+         
         [HttpPost]
         public async Task<IActionResult> VerifyDocumentHMAC(IFormFile jsonFile, IFormCollection form)
         {
