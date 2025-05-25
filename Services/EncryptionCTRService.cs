@@ -1,57 +1,86 @@
-//nao esquecer registar os servicos no Program.cs
-//this are separate services to have the SPR responsabilidade unica
-//RICARDO METER OS METODOS E FUNCOES NECESSARIAS PARA ENCRIPTAR A
-//SK, devera retorna o o fichiero e o iv
-
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
+/**
+ * @class EncryptionCTRService
+ * @brief Service that provides encryption using AES in CTR (Counter) mode.
+ *
+ * This service simulates CTR mode using AES in ECB mode, manually managing the counter.
+ * It performs XOR operations block by block to encrypt the data.
+ */
 public class EncryptionCTRService
 {
-    public (byte[] EncryptedPrivateKey, byte[]nonce) EncryptCTR (string data,byte[] key)
+    /**
+     * @brief Encrypts a string using AES in simulated CTR mode.
+     *
+     * CTR mode is implemented by encrypting a counter block and XORing it with the plaintext.
+     * No padding is needed, as each byte is XORed independently.
+     *
+     * @param data The plaintext string to encrypt.
+     * @param key The AES encryption key (must be 16, 24, or 32 bytes).
+     * @return A tuple containing:
+     *         - EncryptedPrivateKey: the encrypted byte array.
+     *         - nonce: the first 8 bytes used as the nonce.
+     */
+    public (byte[] EncryptedPrivateKey, byte[] nonce) EncryptCTR(string data, byte[] key)
     {
-        using(var aes = Aes.Create())
+        using (var aes = Aes.Create())
         {
             aes.Key = key;
-            aes.Mode = CipherMode.ECB ; //CTR usa ECB
+            aes.Mode = CipherMode.ECB;// ECB is used to simulate CTR
 
-            byte[] nonce = new byte[8]; //gera valor random para juntar ao array debaixo
+            byte[] nonce = new byte[8]; // Randomly generated nonce
             RandomNumberGenerator.Fill(nonce);
 
-            byte[]counterBlock = new byte[16]; //nonce + contador 
-            Array.Copy(nonce,counterBlock,nonce.Length); //adiciona nonce ao array
+            byte[] counterBlock = new byte[16]; // 8-byte nonce + 8-byte counter
+            Array.Copy(nonce, counterBlock, nonce.Length); //add nonce to the array
 
-            using(var encryptor = aes.CreateEncryptor())
-            {   
+            using (var encryptor = aes.CreateEncryptor())
+            {
                 byte[] dataBytes = Encoding.UTF8.GetBytes(data);
-                byte[] cypherBytes = new byte[dataBytes.Length]; //este tamanho porque CTR não faz padding (XOR byte a byte)
+                byte[] cypherBytes = new byte[dataBytes.Length]; // CTR mode uses XOR, no padding
 
-                for(int i = 0;i < dataBytes.Length;i += 16) //bloco a bloco(cada bloco 16 bytes) 
+                //block by block(each one of 16 bytes) 
+                for (int i = 0; i < dataBytes.Length; i += 16)
                 {
-                    byte[] keyStream = encryptor.TransformFinalBlock(counterBlock,0,16); //encriptar cada bloco
-                    int blockSize = Math.Min(16,dataBytes.Length - i); //para último bloco,caso seja menor que 16 
+                    // Generate keystream block by encrypting the counter block
+                    byte[] keyStream = encryptor.TransformFinalBlock(counterBlock, 0, 16); //encriptar cada bloco
+                    int blockSize = Math.Min(16, dataBytes.Length - i); // Handle last block if smaller
 
-                    for(int j = 0;j < blockSize;j++)//byte a byte
+                    // XOR plaintext with keystream (byte by byte)
+                    for (int j = 0; j < blockSize; j++)
                     {
-                        cypherBytes[i+j] = (byte)(dataBytes[i+j] ^ keyStream[j]); 
+                        cypherBytes[i + j] = (byte)(dataBytes[i + j] ^ keyStream[j]);
                     }
-                    IncrementCounter(counterBlock,8);//8 para comecar a incrementar após nonce
+                    // Increment counter (starting after the nonce)
+                    IncrementCounter(counterBlock, 8);
                 }
-                return(cypherBytes, nonce);
+                return (cypherBytes, nonce);
             }
         }
     }
-    private static void IncrementCounter(byte[] counterBlock,int offset){
-        for(int i = counterBlock.Length - 1;i >= offset ;i--){
-            
+
+    /**
+     * @brief Increments the counter portion of a 16-byte counter block.
+     *
+     * Increments from the given offset, typically skipping the nonce prefix.
+     * Supports overflow by propagating the carry byte-wise.
+     *
+     * @param counterBlock The 16-byte counter block (nonce + counter).
+     * @param offset The byte index where the counter starts (usually 8).
+     */
+    private static void IncrementCounter(byte[] counterBlock, int offset)
+    {
+        for (int i = counterBlock.Length - 1; i >= offset; i--)
+        {
+
             counterBlock[i]++;
 
-            ////incrementa o byte na posicao ate chegar ao maximo(255) depois incrementa o em seguida
-            /// mesmo sistema que (0,1,10,11,100,...)
+             // Stop incrementing if no overflow occurred
             if (counterBlock[i] != 0)
                 break;
         }
-    } 
+    }
 
 }

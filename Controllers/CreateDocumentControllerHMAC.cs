@@ -98,7 +98,7 @@ namespace OpenSignControllers
                 }
             }
 
-            // Derivar o "segredo" que vai ser usado para calcular o HMAC
+            // "Secret" derivation that will be used th calculate HMAC
             byte[] salt = DerivationService.genSalt(16);
             var combinacoes = GerarCombinacoes(fixedOptionValues);
             var combinacoesAssinadas = new Dictionary<string, object>();
@@ -107,13 +107,13 @@ namespace OpenSignControllers
             {
             string textoFinal = texto;
 
-            // Substitui apenas os placeholders com opções obrigatórias
+            // Replace only the placeholders with obligatory options
             for (int i = 0; i < fixedPlaceholders.Count; i++)
             {
                 textoFinal = textoFinal.Replace(fixedPlaceholders[i], combinacao[i]);
             }
 
-            // Remove campos de texto livre como [morada]
+            // Remove free text fields like [morada]
             textoFinal = Regex.Replace(textoFinal, @"\[[^\]:\]]+\]", "");
 
             
@@ -136,6 +136,14 @@ namespace OpenSignControllers
             };
         }
 
+        /**
+         * @brief Generates all possible combinations from a list of fixed option sets.
+         *
+         * Performs a Cartesian product over all lists to generate every unique option combination.
+         *
+         * @param listas A list of lists containing string options for placeholders.
+         * @return A list of combinations, each as a list of strings.
+         */
         private List<List<string>> GerarCombinacoes(List<List<string>> listas)
         {
             var resultado = new List<List<string>> { new List<string>() };
