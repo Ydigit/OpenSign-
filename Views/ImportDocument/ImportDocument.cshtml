@@ -2,20 +2,20 @@
     ViewData["Title"] = "Escolher e Assinar";
 }
 
-<h2>Escolher e Assinar</h2>
+<h2>Verify RSA Signatures</h2>
 
 <div id="particles-js"></div>
 
 <form method="post" enctype="multipart/form-data" asp-controller="ImportDocument" asp-action="ImportDocument">
     <div class="mb-3">
-        <label for="jsonFile" class="form-label">Selecione o arquivo JSON gerado</label>
+        <label for="jsonFile" class="form-label">Select .json file generated</label>
         <input type="file" id="jsonFile" name="jsonFile" class="form-control" accept=".json" required />
     </div>
     <div class="mb-3">
-        <label for="keyJsonFile" class="form-label">Selecione o arquivo JSON chave pública</label>
+        <label for="keyJsonFile" class="form-label">Select .json Public Key File</label>
         <input type="file" id="keyJsonFile" name="keyJsonFile" class="form-control" accept=".json" required />
     </div>
-    <button type="submit" class="btn btn-success mt-3">Carregar JSON</button>
+    <button type="submit">Upload</button>
 </form>
 
 @if (ViewBag.Template != null)
@@ -33,7 +33,7 @@
                 @if (item.Value is Newtonsoft.Json.Linq.JArray opcoes)
                 {
                     <select name="@item.Key" class="form-control" required>
-                        <option disabled selected value="">-- selecione uma opção --</option>
+                        <option disabled selected value="">-- select option --</option>
                         @foreach (var opcao in opcoes)
                         {
                             <option value="@opcao">@opcao</option>
@@ -47,7 +47,7 @@
             </div>
         }
 
-        <button type="submit" class="btn btn-primary">Assinar Documento</button>
+        <button type="submit">Verify</button>
     </form>
 }
 
@@ -56,30 +56,24 @@
     <hr />
     <div class="card mt-4">
         <div class="card-header bg-light">
-            <h4 class="mb-0">Resultado da Validação</h4>
+            <h4 class="mb-0">RSA Verification Result:</h4>
         </div>
         <div class="card-body">
             @if (ViewBag.AssinaturaValida == true)
             {
                 <div class="alert alert-success d-flex align-items-center" role="alert">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="bi bi-check-circle-fill me-2" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M16 8A8 8 0 11.001 8a8 8 0 0115.998 0zM6.904 10.803l-2.646-2.647.707-.707L6.904 9.39l4.647-4.647.707.707-5.354 5.353z"/>
-                    </svg>
-                    Assinatura válida. O conteúdo do documento é autêntico.
+                    ✅ Verification accepted! The signature is valid.
                 </div>
             }
             else
             {
                 <div class="alert alert-danger d-flex align-items-center" role="alert">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="bi bi-x-circle-fill me-2" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M16 8A8 8 0 11.001 8a8 8 0 0115.998 0zM4.646 4.646a.5.5 0 10-.708.708L7.293 8l-3.355 3.354a.5.5 0 10.708.708L8 8.707l3.354 3.355a.5.5 0 00.708-.708L8.707 8l3.355-3.354a.5.5 0 00-.708-.708L8 7.293 4.646 4.646z"/>
-                    </svg>
-                    Assinatura inválida. O documento pode ter sido alterado.
+                    ❌ Verification unaccepted! The signature is invalid.
                 </div>
             }
 
             <div class="mb-3">
-                <label class="form-label fw-bold">Assinatura (Base64):</label>
+                <label class="form-label fw-bold">Signature (Base64):</label>
                 <textarea class="form-control" rows="5" readonly>@ViewBag.Assinatura</textarea>
             </div>
         </div>
