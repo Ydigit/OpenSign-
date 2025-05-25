@@ -76,7 +76,7 @@ namespace OpenSignControllers
                         .Select(o => o.Trim())
                         .Where(o => !string.IsNullOrWhiteSpace(o))
                         .ToList();
-                    
+
                     if (opcoes.Count > 3)
                         throw new Exception($"O placeholder '{nome}' excede o limite de 3 opções.");
 

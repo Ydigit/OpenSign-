@@ -10,19 +10,24 @@ using System.Text.Json;
 
 namespace PlaceholderTextApp.Controllers
 {
+    /// @brief Controller responsible for creating and signing documents using RSA.
     [Route("CreateDocument")]
     public class CreateDocumentController : Controller
     {
+        /// @brief Shows the view for document creation.
+        /// @return The document creation view.
         [HttpGet]
         public IActionResult CreateDocument()
         {
             return View();
         }
 
+        /// @brief CBC decryption service.
         private readonly DecryptCBCService _decryptServiceCBC;
+        /// @brief CTR decryption service.
         private readonly DecryptionCTRService _decryptServiceCTR;
 
-
+        /// @brief Default constructor that initializes the decryption services.
         public CreateDocumentController()
         {
             _decryptServiceCBC = new DecryptCBCService();
@@ -30,6 +35,10 @@ namespace PlaceholderTextApp.Controllers
 
         }
 
+        /// @brief Generates and signs a JSON with digital signatures for all possible placeholder combinations.
+        /// @param form Form data with user input.
+        /// @param keyFile File containing the encrypted private key.
+        /// @return JSON file with digital signatures.
         [HttpPost("GerarEAssinarJson")]
         public async Task<IActionResult> GerarEAssinarJson(IFormCollection form, IFormFile keyFile)
         {
@@ -42,14 +51,10 @@ namespace PlaceholderTextApp.Controllers
             if (keyFile == null || keyFile.Length == 0)
                 return BadRequest("Key file not inserted.");
 
-            //tirar isto pois vou fazer gerar no json na propria funcao
-            //gerar logo o json com as asssinaturas
-
             object resultJson;
             try
             {
-                //Json e resultado do decifrar sem expor a variavel sensivel
-                //
+                 // The JSON is the result of decryption without exposing the sensitive variable
                 resultJson = await Decifrar(keyFile, password, textoInput);
             }
             catch (Exception ex)
@@ -58,6 +63,7 @@ namespace PlaceholderTextApp.Controllers
                 return RedirectToAction("CreateDocument");
             }
 
+            //
             var jsonString = JsonConvert.SerializeObject(resultJson, Formatting.Indented);
             var bytes = Encoding.UTF8.GetBytes(jsonString);
             var fileName = "assinaturas.json";
