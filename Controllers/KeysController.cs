@@ -40,20 +40,20 @@ namespace OpenSign.Controllers
         /// @param keys Determines whether to proceed with the key generation and packaging (e.g., "genKeys" for generating both keys).
         /// @return Either a view with success/error messages or a downloadable ZIP archive with the key files.
         [HttpPost("")]
-        //Adicionar os parametros de cifra simetrica
         public IActionResult Generate(int keySize, string encmode, string pss, string keys){
             if (keySize != 2048 && keySize != 3072 && keySize != 4096 )
             {
+                //Handle invalid key size
                 TempData["Error"] = "Invalid public key size.";
                 return View();
             }
 
 
-            //string jsonPath = _keyService.GenerateRSAKeyPairJSON(keySize, pss, encmode);
+            // Generate RSA key pair and encrypt the private key
             var jsonPath = _keyService.GenerateRSAKeyPairJSON(keySize, pss, encmode);
 
-            // cria um arquivo .zip com 1 file json com a private key e outro com a public key
-            if(keys.Equals("genKeys")){
+            // If the user requested to receive the key files as a ZIP archive
+            if (keys.Equals("genKeys")){
                 using (var memoryStream = new MemoryStream())
                 {
                     using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true)){
