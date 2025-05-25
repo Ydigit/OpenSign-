@@ -21,32 +21,62 @@
             <li>Local cryptographic validation without requiring online reauthentication</li>
             <li>Automatic rejection of unauthorized combinations</li>
         </ul>
+        <p class="mt-4">
+            <strong>Tip:</strong> To ensure your document can be signed securely, use square brackets to define
+            authorized placeholder options. For example:
+            <code>[Name: Leonardo, Tiago, Ricardo]</code> or <code>Acquisition: [OsLicence: CentOS, NixOS, RedHat]</code>.
+            These will be interpreted as valid and signable combinations. On the other hand,
+            <strong>free text fields are not signed</strong> and should only be used for non-critical data.
+            <br /><br />
+            <strong>Important:</strong> <u>Do not use spaces in the placeholder name</u> (e.g., use
+            <code>UserName</code> instead of <code>User Name</code>), otherwise the system will not be able
+            to generate a valid signature for that field.
+        </p>
+
+
 
         <hr class="my-5" />
 
         <h3 class="mb-3">Use Case 1: FDA-validated medical prescription</h3>
         <p>
-            An oncologist intends to prescribe an aggressive treatment to a patient. However, this treatment can only be used
-            if it has been <strong>pre-approved and digitally signed by the FDA</strong>. The system ensures that:
+            An oncologist intends to prescribe an aggressive treatment to a patient — for instance, a monoclonal antibody developed by <strong>Roche Pharmaceuticals</strong>.
+            However, this treatment can only be used if it has been <strong>pre-approved and digitally signed by the FDA</strong>. The system ensures that:
         </p>
-        <ul>
+        <ul class="mb-1">
             <li>The doctor can only issue the prescription if the selected option is validated by the FDA's signature</li>
             <li>Any attempt to tamper with the content (e.g., by a man-in-the-middle attacker) is detected and blocked</li>
             <li>The patient receives only validated and authorized prescriptions</li>
         </ul>
 
+        <div class="text-center mt-0 mb-2" style="line-height: 1;">
+            <img src="@Url.Content("~/img/help/RocheFDA.png")"
+                 alt="FDA and Roche Logos"
+                 class="img-fluid"
+                 style="max-height: 300px; object-fit: contain; margin-top: -10px;" />
+        </div>
+
+
+
         <hr class="my-5" />
 
         <h3 class="mb-3">Use Case 2: Military procurement with high-assurance validation</h3>
         <p>
-            A military officer submits a request to acquire weapons or critical components. All possible valid combinations
-            are <strong>pre-signed by a superior military authority</strong>. The system guarantees that:
+            A military officer submits a request to acquire encrypted communication modules from <strong>Northrop Grumman</strong>, a major U.S. defense contractor.
+            All possible valid combinations (e.g., model, quantity, purpose) are pre-signed by a superior military authority, such as the U.S. Department of Defense.
+            The system guarantees that:
         </p>
-        <ul>
+        <ul class="mb-1">
             <li>Only approved options can be submitted for procurement</li>
             <li>An attacker (internal or external) cannot inject invalid combinations since they cannot sign them</li>
             <li>This reduces the risk of sabotage, operational failure, or threats to national or organizational security</li>
         </ul>
+
+        <div class="text-center mt-0 mb-2" style="line-height: 1;">
+            <img src="@Url.Content("~/img/help/northrop.png")"
+                 alt="FDA and Roche Logos"
+                 class="img-fluid"
+                 style="max-height: 300px; object-fit: contain; margin-top: -10px;" />
+        </div>
 
 
         <div class="container mt-5">
@@ -92,7 +122,7 @@
                 <img src="@Url.Content("~/img/help/AppDiagraam.png")"
                      alt="OpenSign Flow Diagram"
                      class="img-fluid"
-                     style="width: 100%; max-width: 1000px; border-radius: 10px;" />
+                     style="width: 100%; height: auto; border-radius: 10px;">
             </div>
             <div class="mt-4" style="max-width: 1000px; margin: auto; text-align: justify;">
                 <p>
