@@ -56,15 +56,27 @@ namespace OpenSign.Controllers
             if (keys.Equals("genKeys")){
                 using (var memoryStream = new MemoryStream())
                 {
+                    /// @brief Creates a ZIP archive containing the generated key files (private + public).
+                    ///
+                    /// @details This block uses a MemoryStream to avoid writing temporary key files to disk,
+                    /// improving performance and enhancing memory safety by limiting data exposure.
+                    ///
+                    /// @note Proper stream disposal ensures sensitive key material is not left in memory longer than necessary.
                     using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true)){
+                        /// @brief Adds the encrypted private key (JSON) file to the ZIP archive.
                         archive.CreateEntryFromFile(jsonPath.jsonfilePath, Path.GetFileName(jsonPath.jsonfilePath));
+                        /// @brief Adds the public key file to the ZIP archive.
                         archive.CreateEntryFromFile(jsonPath.pubfilePath, Path.GetFileName(jsonPath.pubfilePath));
                     }
-
+                    /// @note Reset memory stream pointer to the beginning before returning it to the client.
                     memoryStream.Seek(0, SeekOrigin.Begin);//point to the begining of the memory 
+
+                    /// @return A downloadable ZIP file containing both key files.
+                    /// @warning Since private keys are involved, it's crucial that the file is transferred securely (e.g., HTTPS) and that the stream is disposed properly to prevent memory leakage.
                     return File(memoryStream.ToArray(), "application/zip", "rsa_keypair.zip");
                 }
             }
+            //Successful Generation
             TempData["Success"] = $"Keys {encmode.ToUpper()} of {keySize} bits generated with success.";
             return View();
         }
