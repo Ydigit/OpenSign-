@@ -49,10 +49,10 @@ namespace OpenSign.Controllers
             }
 
 
-            // Generate RSA key pair and encrypt the private key
+            /// @brief Generate RSA key pair and encrypt the private key
             var jsonPath = _keyService.GenerateRSAKeyPairJSON(keySize, pss, encmode);
 
-            // If the user requested to receive the key files as a ZIP archive
+            ///@brief If the user requested to receive the key files as a ZIP archive
             if (keys.Equals("genKeys")){
                 using (var memoryStream = new MemoryStream())//Volatile memory stream to hold the ZIP archive in memory, avoiding file system I/O for better performance and security.
                 {
@@ -78,7 +78,7 @@ namespace OpenSign.Controllers
                     return File(memoryStream.ToArray(), "application/zip", "rsa_keypair.zip");//To Array will now return the correct 
                 }
             }
-            //Successful Generation
+            /// @brief Successful Generation
             TempData["Success"] = $"Keys {encmode.ToUpper()} of {keySize} bits generated with success.";
             return View();
         }

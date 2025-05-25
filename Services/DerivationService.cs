@@ -44,31 +44,29 @@ public class DerivationService{
      *         - The salt (16 bytes) generated in the process.
      */
     public static (byte[] Kderivada, byte[] salt) DeriveKey(string password){
-        //generate random salt with 16 bytes
+        /// @brief generate random salt with 16 bytes
         byte[] salt = genSalt(16);//16 bytes
-        //PBKDF2  HMAC = f(salt, password, num_iter, SHA256)-> number of iter to reforce hashing
+
+        ///@brief PBKDF2  HMAC = f(salt, password, num_iter, SHA256)-> number of iter to reforce hashing
         Rfc2898DeriveBytes password_derived = new Rfc2898DeriveBytes(password, salt, num_iter, HashAlgorithmName.SHA256);
-        //extract the first 32bytes of the PBKDF2 obj, enough for AES256 enc input requirements
+
+        ///@brief extract the first 32bytes of the PBKDF2 obj, enough for AES256 enc input requirements
         return (password_derived.GetBytes(32), salt);//salt is important to store in the json for later decryption
     
     }
 
-    /**
-     * @brief Derives a cryptographic key from a plain-text password using a provided salt.
-     *
-     * This function uses PBKDF2 with HMAC-SHA256 to derive a 32-byte key from the given plain-text password and salt.
-     * It is particularly useful for scenarios where the same salt must be used, such as verifying data or decrypting content.
-     *
-     * @param password The plain-text password used for key derivation.
-     * @param salt The salt previously generated and used in a prior derivation.
-     * @return A 32-byte derived key.
-     */
+    /// @brief Derives a cryptographic key from a plain-text password using a provided salt.
+    /// 
+    /// This function uses PBKDF2 with HMAC-SHA256 to derive a 32-byte key from the given plain-text password and salt.
+    /// 
+    /// It is particularly useful for scenarios where the same salt must be used, such as verifying data or decrypting content.
+    /// @param password The plain-text password used for key derivation.
+    /// @param salt The salt previously generated and used in a prior derivation.
+    /// @return A 32-byte derived key.
     public static byte[] DeriveKey(string password, byte[] salt){
 
         Rfc2898DeriveBytes password_derived = new Rfc2898DeriveBytes(password, salt, num_iter, HashAlgorithmName.SHA256);
 
         return (password_derived.GetBytes(32));
-
-    
     }   
 }
