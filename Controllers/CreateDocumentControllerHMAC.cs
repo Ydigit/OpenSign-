@@ -57,7 +57,7 @@ namespace OpenSignControllers
 
             int maxPlaceholders = 7;
             if (matches.Count > maxPlaceholders)
-                throw new Exception($"O texto excede o limite de {maxPlaceholders} placeholders.");
+                throw new Exception($"The text exceeds the limit of {maxPlaceholders} placeholders.");
 
             var placeholders = new Dictionary<string, object>();
             var fixedOptionValues = new List<List<string>>();
@@ -76,9 +76,9 @@ namespace OpenSignControllers
                         .Select(o => o.Trim())
                         .Where(o => !string.IsNullOrWhiteSpace(o))
                         .ToList();
-                    
+
                     if (opcoes.Count > 3)
-                        throw new Exception($"O placeholder '{nome}' excede o limite de 3 opções.");
+                        throw new Exception($"The placeholder '{nome}' exceeds the limit of 3 options.");
 
                     if (opcoes.Count > 0)
                     {
