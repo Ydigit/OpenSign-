@@ -42,7 +42,7 @@ namespace PlaceholderTextApp.Services
         {
             var tempFilePath = Path.GetTempFileName();
 
-            using (var stream = File.Create(tempFilePath))
+            using (var stream = System.IO.File.Create(tempFilePath))
             {
                 await keyFile.CopyToAsync(stream);
             }
@@ -95,39 +95,38 @@ namespace PlaceholderTextApp.Services
             /// @brief Extract and classify placeholders: fixed-option or free text.
             foreach (Match match in matches)
             {
-                string content = match.Groups[1].Value;
+                string conteudo = match.Groups[1].Value;
 
                 /// @brief If placeholder contains options (e.g., [role:admin,user]).
-                if (content.Contains(":"))
+                if (conteudo.Contains(":"))
                 {
-                    var parts = content.Split(":", 2);
-                    string name = parts[0].Trim();
-
-                    var options = parts[1]
-                        .Split(',')
-                        .Select(o => o.Trim())
-                        .Where(o => !string.IsNullOrWhiteSpace(o))
-                        .ToList();
+                    var partes = conteudo.Split(":", 2);
+                    string nome = partes[0].Trim();
+                    var opcoes = partes[1]
+                    .Split(',')
+                    .Select(o => o.Trim())
+                    .Where(o => !string.IsNullOrWhiteSpace(o))
+                    .ToList();
 
                     /// @brief Enforce a maximum of 3 options per placeholder.
-                    if (options.Count > 3)
-                        throw new Exception($"The placeholder '{name}' exceeds the limit of 3 options.");
+                    if (opcoes.Count > 3)
+                        throw new Exception($"The placeholder '{nome}' exceeds the limit of 3 options.");
 
                     /// @brief Register placeholder options or fallback to free text.
-                    placeholders[name] = options.Count > 0 ? options : "Free Text";
+                    placeholders[nome] = opcoes.Count > 0 ? opcoes : "Free Text";
 
                     /// @brief Store placeholders with fixed options for combinations.
-                    if (options.Count > 0)
+                    if (opcoes.Count > 0)
                     {
-                        fixedOptionValues.Add(options);
+                        fixedOptionValues.Add(opcoes);
                         fixedPlaceholders.Add(match.Value);
                     }
                 }
                 else
                 {
                     /// @brief If no options, treat as free-text placeholder.
-                    string name = content.Trim();
-                    placeholders[name] = "Free Text";
+                    string nome = conteudo.Trim();
+                    placeholders[nome] = "Free Text";
                 }
             }
 

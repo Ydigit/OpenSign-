@@ -43,70 +43,70 @@ namespace OpenSign.Services
             string publicKeyBase64 = form["PublicKey"];
 
             /// @brief Extract user-filled fields (ignores system fields).
-            var responses = form
+            var respostas = form
                 .Where(k => k.Key != "template" && k.Key != "signedCombinations" && !k.Key.StartsWith("__"))
                 .ToDictionary(k => k.Key, k => k.Value.ToString());
 
             /// @brief Generate final document text with all placeholders filled.
-            string fullText = Regex.Replace(template, @"\[(\@?\w*)(:[^\]]*)?\]", m =>
+            string textoCompleto = Regex.Replace(template, @"\[(\@?\w*)(:[^\]]*)?\]", m =>
             {
                 var key = m.Groups[1].Value;
-                return responses.ContainsKey(key) ? responses[key] : m.Value;
+                return respostas.ContainsKey(key) ? respostas[key] : m.Value;
             });
 
             /// @brief Generate text to match signature (only fixed-option placeholders filled).
-            string signedText = Regex.Replace(template, @"\[(\@?\w*)(:[^\]]*)?\]", m =>
+            string textoAssinado = Regex.Replace(template, @"\[(\@?\w*)(:[^\]]*)?\]", m =>
             {
                 var key = m.Groups[1].Value;
                 var hasOptions = m.Groups[2].Success;
-                return hasOptions && responses.ContainsKey(key) ? responses[key] : m.Value;
+                return hasOptions && respostas.ContainsKey(key) ? respostas[key] : m.Value;
             });
 
             /// @brief Hash the signed text using SHA-256.
-            byte[] data = Encoding.UTF8.GetBytes(signedText);
+            byte[] dados = Encoding.UTF8.GetBytes(textoAssinado);
             using SHA256 sha256 = SHA256.Create();
-            byte[] hash = sha256.ComputeHash(data);
+            byte[] hash = sha256.ComputeHash(dados);
             string hashBase64 = Convert.ToBase64String(hash);
 
             /// @brief Initialize signature variables.
-            string? signature = null;
-            bool isSignatureValid = signedCombinations.TryGetValue(hashBase64, out var match);
+            string? assinatura = null;
+            bool assinaturaValida = signedCombinations.TryGetValue(hashBase64, out var match);
 
             /// @brief If hash matches a known signed version, verify the signature.
-            if (isSignatureValid)
+            if (assinaturaValida)
             {
-                signature = match.signature;
+                assinatura = match.signature;
                 using RSA rsa = RSA.Create();
 
                 try
                 {
                     /// @brief Convert and import public key from Base64.
-                    byte[] publicKeyBytes = Convert.FromBase64String(publicKeyBase64);
-                    rsa.ImportSubjectPublicKeyInfo(publicKeyBytes, out _);
+                    byte[] pkBytes = Convert.FromBase64String(publicKeyBase64);
+                    rsa.ImportSubjectPublicKeyInfo(pkBytes, out _);
 
                     /// @brief Convert Base64 hash and signature for verification.
                     byte[] hashBytes = Convert.FromBase64String(hashBase64);
-                    byte[] signatureBytes = Convert.FromBase64String(signature);
+                    byte[] assinaturaBytes = Convert.FromBase64String(assinatura);
 
                     /// @brief Perform RSA signature verification.
-                    isSignatureValid = rsa.VerifyHash(hashBytes, signatureBytes, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+                    assinaturaValida = rsa.VerifyHash(hashBytes, assinaturaBytes, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
                 }
                 catch (Exception)
                 {
                     /// @brief Mark signature as invalid if any exception occurs.
-                    isSignatureValid = false;
+                    assinaturaValida = false;
                 }
             }
 
             /// @brief Build output object with all relevant info.
             var outputJson = new
             {
-                selected_text = fullText,
-                signed_text = signedText,
-                inputs = responses,
+                selected_text = textoCompleto,
+                signed_text = textoAssinado,
+                inputs = respostas,
                 hash = hashBase64,
-                signature = signature,
-                signature_matched = isSignatureValid,
+                signature = assinatura,
+                signature_matched = assinaturaValida,
                 signature_algorithm = "RSA"
             };
 
@@ -114,10 +114,10 @@ namespace OpenSign.Services
             return new DocumentImportResult
             {
                 OutputJson = JsonConvert.SerializeObject(outputJson, Formatting.Indented),
-                Signature = signature ?? "N/A",
-                SignatureMatched = isSignatureValid,
-                TextoCompleto = fullText,
-                TextoAssinado = signedText
+                Signature = assinatura ?? "N/A",
+                SignatureMatched = assinaturaValida,
+                TextoCompleto = textoCompleto,
+                TextoAssinado = textoAssinado
             };
         }
     }
