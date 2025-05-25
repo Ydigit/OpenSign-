@@ -33,13 +33,7 @@ namespace OpenSign.Controllers
                 TempData["Error"] = "Invalid public key size.";
                 return View();
             }
-            //cmode e chill
-            //pass
-            //if (keySize != 2048 && keySize != 3072 && keySize != 4096 || )
-            //{
-            //    TempData["Error"] = "Password is too weak.";
-            //    return View();
-            //}
+
 
             //string jsonPath = _keyService.GenerateRSAKeyPairJSON(keySize, pss, encmode);
             var jsonPath = _keyService.GenerateRSAKeyPairJSON(keySize, pss, encmode);
@@ -53,7 +47,7 @@ namespace OpenSign.Controllers
                         archive.CreateEntryFromFile(jsonPath.pubfilePath, Path.GetFileName(jsonPath.pubfilePath));
                     }
 
-                    memoryStream.Seek(0, SeekOrigin.Begin);
+                    memoryStream.Seek(0, SeekOrigin.Begin);//point to the begining of the memory 
                     return File(memoryStream.ToArray(), "application/zip", "rsa_keypair.zip");
                 }
                 //return PhysicalFile(jsonPath.jsonfilePath, "application/json", Path.GetFileName(jsonPath.jsonfilePath));
