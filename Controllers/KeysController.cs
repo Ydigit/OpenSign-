@@ -54,7 +54,7 @@ namespace OpenSign.Controllers
 
             // If the user requested to receive the key files as a ZIP archive
             if (keys.Equals("genKeys")){
-                using (var memoryStream = new MemoryStream())
+                using (var memoryStream = new MemoryStream())//Volatile memory stream to hold the ZIP archive in memory, avoiding file system I/O for better performance and security.
                 {
                     /// @brief Creates a ZIP archive containing the generated key files (private + public).
                     ///
@@ -68,12 +68,14 @@ namespace OpenSign.Controllers
                         /// @brief Adds the public key file to the ZIP archive.
                         archive.CreateEntryFromFile(jsonPath.pubfilePath, Path.GetFileName(jsonPath.pubfilePath));
                     }
-                    /// @note Reset memory stream pointer to the beginning before returning it to the client.
+                    /// @note Reset memory stream pointer to the beginning before returning it to the client, after writing the ZIP archive, point to the beginning of the memory stream to ensure the file is read from the start when downloaded.
+                    /// @warning This is crucial to avoid returning an empty file or a file with incorrect content [MEMORY SAFETY].
                     memoryStream.Seek(0, SeekOrigin.Begin);//point to the begining of the memory 
 
                     /// @return A downloadable ZIP file containing both key files.
                     /// @warning Since private keys are involved, it's crucial that the file is transferred securely (e.g., HTTPS) and that the stream is disposed properly to prevent memory leakage.
-                    return File(memoryStream.ToArray(), "application/zip", "rsa_keypair.zip");
+                    
+                    return File(memoryStream.ToArray(), "application/zip", "rsa_keypair.zip");//To Array will now return the correct 
                 }
             }
             //Successful Generation
