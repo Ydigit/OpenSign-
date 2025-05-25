@@ -6,43 +6,56 @@ using System.Text.Json;
 
 namespace OpenSign.Services
 {
-    /// <summary>
-    /// Serviço responsável por decifrar uma chave privada usando o modo AES-256-CBC.
-    /// </summary>
+    /**
+     * \class DecryptCBCService
+     * \brief Service that handles decryption of an AES-256-CBC encrypted private key stored in a JSON file.
+     *
+     * This service reads a JSON file containing an encrypted private key, initialization vector (IV), and salt.
+     * It uses the AES-256-CBC algorithm with PKCS7 padding and a derived key from the user-provided password.
+     */
     public class DecryptCBCService
     {
-        /// <summary>
-        /// Decifra uma chave privada a partir de um arquivo JSON que contem os dados necessários.
-        /// </summary>
-        /// <param name="jsonFilePath">Caminho para o arquivo JSON que contem os dados criptografados.</param>
-        /// <param name="rawPassword">Senha fornecida pelo usuário.</param>
-        /// <returns>Chave privada decifrada em formato PEM.</returns>
-        /// <exception cref="InvalidOperationException">Se o formato do JSON for inválido.</exception>
-        /// <exception cref="NotSupportedException">Se o modo de cifra não for suportado.</exception>
-        /// <exception cref="ArgumentException">Se o tamanho da chave derivada for inválido.</exception>
-        /// <exception cref="CryptographicException">Se ocorrer uma falha na decifração (ex. senha incorreta).</exception>
-        /// <exception cref="Exception">Para outros erros não tratados.</exception>
+        /**
+         * \brief Decrypts a private key from a JSON file using AES-256-CBC.
+         * 
+         * \param jsonFilePath The path to the JSON file containing encryption metadata and the encrypted key.
+         * \param rawPassword The password input by the user, which is used to derive the decryption key.
+         * \return A string containing the decrypted private key (in PEM format).
+         *
+         * \throws InvalidOperationException if the JSON format is invalid.
+         * \throws NotSupportedException if the cipher mode is unsupported.
+         * \throws ArgumentException if the derived key length is incorrect.
+         * \throws CryptographicException if decryption fails (e.g., due to a wrong password).
+         * \throws Exception for any general error during the process.
+         */
         public string DecryptPrivateKeyFromJson(string jsonFilePath, string rawPassword)
         {
             try
             {
+                // Read the encrypted key content from the file
                 string jsonContent = File.ReadAllText(jsonFilePath);
+
+                // Parse the content into a JsonData object
                 var jsonData = JsonSerializer.Deserialize<JsonData>(jsonContent) ??
                     throw new InvalidOperationException("Invalid JSON format");
 
+                // Extract the encrypted key, IV, salt, and cipher mode from the JSON
                 byte[] encryptedData = Convert.FromBase64String(jsonData.EncryptedSecretKey!);
                 byte[] iv = Convert.FromBase64String(jsonData.Iv!);
                 byte[] salt = Convert.FromBase64String(jsonData.Salt!);
                 string cipherMode = jsonData.CipherMode ?? "aes-256-cbc";
 
+                // Only AES-256-CBC is supported for now
                 if (cipherMode.ToLower() != "aes-256-cbc")
                     throw new NotSupportedException($"Cipher mode '{cipherMode}' is not supported yet.");
 
+                // Derive a 256-bit (32-byte) key from the password and salt
                 byte[] key = DerivationService.DeriveKey(rawPassword, salt);
 
                 if (key.Length != 32)
                     throw new ArgumentException($"Invalid key size. Expected 32 bytes, got {key.Length}");
 
+                // Configure AES with derived key, IV and padding
                 using (var aes = Aes.Create())
                 {
                     aes.Key = key;
@@ -50,40 +63,45 @@ namespace OpenSign.Services
                     aes.Mode = CipherMode.CBC;
                     aes.Padding = PaddingMode.PKCS7;
 
+                    // Decrypt the data using CryptoStream
                     using (var decryptor = aes.CreateDecryptor())
                     using (var ms = new MemoryStream(encryptedData))
                     using (var cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read))
                     using (var sr = new StreamReader(cs))
                     {
+                        // Return the decrypted string (PEM private key)
                         return sr.ReadToEnd();
                     }
                 }
             }
             catch (CryptographicException ex)
             {
+                // Likely a wrong password or corrupted data
                 throw new CryptographicException("Decryption failed - likely wrong password", ex);
             }
             catch (Exception ex)
             {
+                // General error handling
                 throw new Exception("Decryption error", ex);
             }
         }
 
-        /// <summary>
-        /// Representa os dados esperados no arquivo JSON para o modo CBC.
-        /// </summary>
+        /**
+         * \class JsonData
+         * \brief Helper class used to deserialize JSON content with encryption metadata.
+         */
         private class JsonData
         {
-            /// <summary>Chave secreta criptografada em Base64.</summary>
+            /// Encrypted secret key in Base64.
             public string? EncryptedSecretKey { get; set; }
 
-            /// <summary>Vetor de inicialização (IV) em Base64.</summary>
+            /// Initialization Vector (IV) in Base64.
             public string? Iv { get; set; }
 
-            /// <summary>Salt utilizado na derivação da chave, em Base64.</summary>
+            /// Salt used for key derivation, in Base64.
             public string? Salt { get; set; }
 
-            /// <summary>Modo de cifra (ex: aes-256-cbc).</summary>
+            /// Cipher mode identifier, e.g., "aes-256-cbc".
             public string? CipherMode { get; set; }
         }
     }
