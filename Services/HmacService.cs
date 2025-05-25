@@ -25,7 +25,7 @@ namespace OpenSign.Services
         {
             try
             {
-                // Parse the signed JSON to extract its components
+                ///@brief Parse the signed JSON to extract its components
                 var signedData = JObject.Parse(signedJson);
 
                 string? originalContent = signedData["content"]?.ToString();
@@ -34,10 +34,10 @@ namespace OpenSign.Services
 
                 var salt = Convert.FromBase64String(saltBase64);
 
-               // Recompute HMAC locally using the same secret key and salt
+               ///@brief Recompute HMAC locally using the same secret key and salt
                 string computedHmac = CalcularHmac(originalContent, secretKey, salt);
 
-                 // Compare HMACs using constant-time comparison to prevent timing attacks
+                 ///@brief Compare HMACs using constant-time comparison to prevent timing attacks
                 return CryptographicOperations.FixedTimeEquals(
                     Encoding.UTF8.GetBytes(computedHmac),
                     Encoding.UTF8.GetBytes(hmacProvided)
@@ -63,19 +63,22 @@ namespace OpenSign.Services
         public string CalcularHmac(string message, string key, byte[] salt)
         {
 
-            // Derive a cryptographic key from the password and salt
+            ///@brief Derive a cryptographic key from the password and salt
             var chaveDerivada = DerivationService.DeriveKey(key, salt);
             var messageBytes = Encoding.UTF8.GetBytes(message);
 
-            // Create the HMAC-SHA256 using the derived key
+            ///@brief Create the HMAC-SHA256 using the derived key
             using var hmac = new HMACSHA256(chaveDerivada);
-            var hashBytes = hmac.ComputeHash(messageBytes); // Aplica o hash
 
-            // Convert hash bytes to a lowercase hexadecimal string
+            ///@brief Apply the hash
+            var hashBytes = hmac.ComputeHash(messageBytes); 
+
+            ///@brief Convert hash bytes to a lowercase hexadecimal string
             var sb = new StringBuilder(hashBytes.Length * 2);
             foreach (var b in hashBytes)
             {
-                sb.Append(b.ToString("x2")); // Each byte turns 2 hexadecimal caracters
+                ///@brief Each byte turns 2 hexadecimal caracters
+                sb.Append(b.ToString("x2"));
             }
             return sb.ToString();
         }

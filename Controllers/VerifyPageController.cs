@@ -1,19 +1,33 @@
-//Queres gerar chaves ou criar o doc, ja com chaves
 using Microsoft.AspNetCore.Mvc;
 
 namespace OpenSign.Controllers
 {
-    [Route("VerifyPage")]//esta e a noma rota base do controllador
+    /**
+     * @class VerifyPageController
+     * @brief Controller responsible for rendering the verification landing page.
+     *
+     * This controller handles the route used to display the main page where the user
+     * can choose to generate keys or verify documents with digital signatures or HMACs.
+     */
+
+    ///@brief Base route for this controller
+    [Route("VerifyPage")]
     public class VerifyPageController : Controller
     {
-        //QUANDO ACEDER AO ROUTE SIGN, VAI ACEDER AO SIGNVIEW E RETORNA 
-        [HttpGet("")]// vai definir que a action SignView ser� chamada quando a URL /Sign for acessada.
+        /**
+        * @brief Displays the verification options page.
+        *
+        * This method renders the view where the user chooses between generating keys
+        * or uploading/verifying a document.
+        *
+        * @return The VerifyPage view.
+        */
+         
+        ///@brief Called when accessing the /VerifyPage route
+        [HttpGet("")]
         public IActionResult VerifyPage()
         {
             return View();
         }
     }
 }
-
-
-//Controller para poder ter uma action que retorna a respetica view
