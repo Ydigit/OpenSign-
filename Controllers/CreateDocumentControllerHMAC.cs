@@ -34,6 +34,7 @@ namespace OpenSignControllers
             {
                 var resultJson = _documentSigningServiceHmac.GenerateHmacSignedJson(textoInput, chaveHmacInput);
 
+
                 var jsonString = JsonConvert.SerializeObject(resultJson, Formatting.Indented);
                 var bytes = Encoding.UTF8.GetBytes(jsonString);
                 var fileName = "Signatures.json";

@@ -5,11 +5,21 @@ using System.Text.RegularExpressions;
 
 namespace OpenSign.Controllers
 {
+    /**
+     * @class VerifyDocumentHMACController
+     * @brief Controller responsible for verifying documents using HMAC signatures.
+     *
+     * This controller handles both the upload of JSON templates containing placeholders and
+     * the verification of user-submitted input against signed combinations using HMAC-SHA256.
+     */
     [Route("VerifyDocumentHMAC")]
     public class VerifyDocumentHMACController : Controller
     {
         private readonly HmacService _hmacService;
 
+        /**
+         * @brief Constructor that initializes the HMAC service.
+         */
         public VerifyDocumentHMACController()
         {
             _hmacService = new HmacService();
@@ -18,14 +28,23 @@ namespace OpenSign.Controllers
         [HttpGet("")]
         public IActionResult VerifyDocumentHMAC()
         {
-            // Retorna a página da view para o utilizador carregar o JSON e a chave HMAC
             return View();
         }
 
+        /**
+         * @brief Handles the POST request to verify a document using HMAC.
+         *
+         * Accepts a JSON file or form fields, reconstructs the message using user inputs,
+         * computes the HMAC, and checks it against signed combinations in the JSON file.
+         *
+         * @param jsonFile The uploaded JSON file (optional if form fields are used).
+         * @param form The form collection containing placeholders, HMAC key, and salt.
+         * @return A view showing whether the HMAC matched a valid signature.
+         */
         [HttpPost]
         public async Task<IActionResult> VerifyDocumentHMAC(IFormFile jsonFile, IFormCollection form)
         {
-            // Verifica se a chave HMAC está presente e válida
+            // Allows to verify if the HMAC key is present and valid
             if (!form.TryGetValue("hmacKey", out var hmacKeyValue) || string.IsNullOrWhiteSpace(hmacKeyValue))
             {
                 TempData["Error"] = "Missing HMAC key.";
@@ -34,20 +53,20 @@ namespace OpenSign.Controllers
 
             string hmacKey = hmacKeyValue!;
 
-            // Se o utilizador subiu um ficheiro JSON
+            // Checks if the JSON file was uploaded corretly
             if (jsonFile != null)
             {
                 using var reader = new StreamReader(jsonFile.OpenReadStream());
                 var jsonText = await reader.ReadToEndAsync();
 
-                // Verifica se o ficheiro está vazio
+                // CVerify if file is empty
                 if (string.IsNullOrWhiteSpace(jsonText))
                 {
                     TempData["Error"] = "Empty .json content.";
                     return View();
                 }
 
-                // Tenta deserializar o JSON para objeto dinâmico
+                 // Deserialize JSON file to obtain dynamic object
                 var json = JsonConvert.DeserializeObject<dynamic>(jsonText);
                 if (json == null)
                 {
@@ -55,21 +74,21 @@ namespace OpenSign.Controllers
                     return View();
                 }
 
-                // Preenche a ViewBag com os dados carregados para construir os campos dinâmicos
+                // Fill the ViewBag with the loaded values to build dynamic fields.
                 ViewBag.Template = (string?)json.original ?? "";
                 ViewBag.Placeholders = json.placeholders?.ToObject<Dictionary<string, object>>() ?? new Dictionary<string, object>();
                 ViewBag.SignedCombinations = json.signed_combinations ?? new Dictionary<string, object>();
                 ViewBag.HmacKey = hmacKey;
 
-                // Extrair o salt do JSON (se existir)
+                // Extracts salt from JSON file)
                 string saltBase64 = json.salt != null ? (string)json.salt : "";
                 ViewBag.SaltBase64 = saltBase64;
 
-                return View(); // Volta à view para mostrar os campos preenchíveis
+                return View(); // Show all the fields to fill (options and free text)
             }
             else
             {
-                // Dados enviados para o form
+                // Data sent from the form
                 if (!form.TryGetValue("template", out var templateValue) ||
                     !form.TryGetValue("signedCombinations", out var signedJsonValue)||
                     !form.TryGetValue("saltBase64", out var saltBase64Value))
@@ -88,7 +107,6 @@ namespace OpenSign.Controllers
                     return View();
                 }
 
-                // Tenta reconverter o JSON das assinaturas
                 var signedCombinations = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(signedJson);
                 if (signedCombinations == null)
                 {
@@ -96,19 +114,19 @@ namespace OpenSign.Controllers
                     return View();
                 }
 
-                // Recolhe os valores preenchidos pelo utilizador (exceto campos internos)
+                // Retrieve the values filled by the user (except internal fields)
                 var respostas = form
                     .Where(k => k.Key != "template" && k.Key != "signedCombinations" && k.Key != "hmacKey" && !k.Key.StartsWith("__"))
                     .ToDictionary(k => k.Key, k => k.Value.ToString());
 
-                // Monta o texto final substituindo todos os placeholders com os valores preenchidos (para mostrar ao utilizador)
+                // Redo the final text by replacing all placeholders with the filled values
                 string textoComFreeText = Regex.Replace(template, @"\[(\@?\w*)(:[^\]]*)?\]", m =>
                 {
                     var key = m.Groups[1].Value;
                     return respostas.ContainsKey(key) ? respostas[key] : "";
                 });
 
-                // Monta o texto para cálculo do HMAC (só com placeholders que têm opções fixas)
+                // Aplly all the placeholders who need to be signed, ignoring free text fields and do HMAC again.
                 string textoParaHmac = Regex.Replace(template, @"\[(\@?\w*)(:[^\]]*)?\]", m =>
                 {
                     var key = m.Groups[1].Value;
@@ -117,22 +135,19 @@ namespace OpenSign.Controllers
                     if (temOpcoes && respostas.ContainsKey(key))
                         return respostas[key];
 
-                    // Ignora campos de texto livre para o HMAC
-                    return "";
+                    return ""; // Ignore Free Text
                 });
 
                 byte[] salt = Convert.FromBase64String(saltBase64);
 
-                // Calcula o HMAC com o texto para HMAC e a chave fornecida
+                // Sign again with HMAC using key and salt provide
                 string hmacHex = _hmacService.CalcularHmac(textoParaHmac, hmacKey, salt);
 
-                // Verifica se o HMAC calculado existe nas assinaturas conhecidas
+                // Verify if the HMAC signature exists in the signed combinations (present if JSON file)
                 bool assinaturaValida = signedCombinations.ContainsKey(hmacHex);
-
-                // Recupera a assinatura original, se existir
                 string? assinatura = assinaturaValida ? signedCombinations[hmacHex].hmac : null;
 
-                // Prepara o JSON de resposta para exibir na interface
+                // JSON for output if needed
                 var outputJson = new
                 {
                     selected_text = textoComFreeText,
