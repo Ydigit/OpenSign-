@@ -47,7 +47,7 @@ namespace OpenSign.Controllers
                         archive.CreateEntryFromFile(jsonPath.pubfilePath, Path.GetFileName(jsonPath.pubfilePath));
                     }
 
-                    memoryStream.Seek(0, SeekOrigin.Begin);
+                    memoryStream.Seek(0, SeekOrigin.Begin);//point to the begining of the memory 
                     return File(memoryStream.ToArray(), "application/zip", "rsa_keypair.zip");
                 }
                 //return PhysicalFile(jsonPath.jsonfilePath, "application/json", Path.GetFileName(jsonPath.jsonfilePath));
