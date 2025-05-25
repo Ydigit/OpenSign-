@@ -7,26 +7,28 @@ using System.Text.Json;
 namespace OpenSign.Services
 {
     public class DecryptCBCService
-    {
+    {   //Inputs: json paths for enc Sk with  necessary parameters for each enc mode
+        //rawpass is introduced by the user and then used to derive it and decript the Sk
         public string DecryptPrivateKeyFromJson(string jsonFilePath, string rawPassword)
         {
             try
             {
-                // Lê o ficheiro .json
+                //Read Json File
                 string jsonContent = File.ReadAllText(jsonFilePath);
+                //Parse the JSON
                 var jsonData = JsonSerializer.Deserialize<JsonData>(jsonContent) ??
                     throw new InvalidOperationException("Invalid JSON format");
 
-                // Conversão para Base64
+                // Fill JsonData obj with the respective fields for CBC256
                 byte[] encryptedData = Convert.FromBase64String(jsonData.EncryptedSecretKey!);
                 byte[] iv = Convert.FromBase64String(jsonData.Iv!);
                 byte[] salt = Convert.FromBase64String(jsonData.Salt!);
                 string cipherMode = jsonData.CipherMode ?? "aes-256-cbc";
 
+                //Invalid cipher modes alert
                 if (cipherMode.ToLower() != "aes-256-cbc")
                     throw new NotSupportedException($"Cipher mode '{cipherMode}' is not supported yet.");
-
-                // Deriva a chave a partir da password
+                //Derive the rawpassword in order to decrypt the Sk in conjunction with the other fields
                 byte[] key = DerivationService.DeriveKey(rawPassword, salt);
 
                 if (key.Length != 32)

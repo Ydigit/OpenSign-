@@ -17,18 +17,14 @@ public class DerivationService{
         return salt;
     }
 
-    /*
-    * function that derivates the hash key from password 
-    * @param password -> password introduced by the user 
-    */
+    // this function returns the deriveKey and the respective salt
     public static (byte[] Kderivada, byte[] salt) DeriveKey(string password){
-
-        byte[] salt = genSalt(16);//16 bytes?
-    
+        //generate random salt with 16 bytes
+        byte[] salt = genSalt(16);//16 bytes
+        //PBKDF2  HMAC = f(salt, password, num_iter, SHA256)-> number of iter to reforce hashing
         Rfc2898DeriveBytes password_derived = new Rfc2898DeriveBytes(password, salt, num_iter, HashAlgorithmName.SHA256);
-        //correcao do rafa, tinha 256, mas tem de ser o numero de bytes nao de bits
-        //depois de gerar o derivado em bytes, retiramos os bytes da propria chave ja derivada
-        return (password_derived.GetBytes(32), salt);
+        //extract the first 32bytes of the PBKDF2 obj, enough for AES256 enc input requirements
+        return (password_derived.GetBytes(32), salt);//salt is important to store in the json for later decryption
     
     }
 
@@ -37,6 +33,8 @@ public class DerivationService{
      * método que deriva com o salt associado à password 
      *
     */
+    //same thing but does not generate a random salt
+    //derive pass to decript the sk with a given salt and criptogram(sk)
     public static byte[] DeriveKey(string password, byte[] salt){
 
         Rfc2898DeriveBytes password_derived = new Rfc2898DeriveBytes(password, salt, num_iter, HashAlgorithmName.SHA256);
