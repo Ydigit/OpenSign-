@@ -37,10 +37,10 @@ namespace PlaceholderTextApp.Controllers
             string? password = form["pss"];
 
             if (string.IsNullOrWhiteSpace(textoInput) || string.IsNullOrWhiteSpace(password))
-                return BadRequest("Texto ou senha inválido.");
+                return BadRequest("Text or password invalid.");
 
             if (keyFile == null || keyFile.Length == 0)
-                return BadRequest("Arquivo de chave não fornecido.");
+                return BadRequest("Key file not inserted.");
 
             //tirar isto pois vou fazer gerar no json na propria funcao
             //gerar logo o json com as asssinaturas
@@ -54,7 +54,7 @@ namespace PlaceholderTextApp.Controllers
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"Erro ao decifrar a chave: {ex.Message}";
+                TempData["Error"] = $"Decrypt Key Error: {ex.Message}";
                 return RedirectToAction("CreateDocument");
             }
 
@@ -168,7 +168,7 @@ namespace PlaceholderTextApp.Controllers
         {
             if (keyFile == null || string.IsNullOrEmpty(pss))
             {
-                throw new ArgumentException("Erro: Ficheiro ou password inválidos!");
+                throw new ArgumentException("Error: File or password invalid!");
             }
 
             try
@@ -186,7 +186,7 @@ namespace PlaceholderTextApp.Controllers
 
                 if (keyData == null || string.IsNullOrEmpty(keyData.CipherMode))
                 {
-                    throw new Exception("O arquivo JSON está malformado ou não contém o modo de cifração.");
+                    throw new Exception(".json file is bad formed or does not have cypher mode.");
                 }
 
                 // Escolher o serviço de decifração com base no modo
@@ -201,7 +201,7 @@ namespace PlaceholderTextApp.Controllers
                 }
                 else
                 {
-                    throw new Exception("Modo de cifração desconhecido no arquivo JSON.");
+                    throw new Exception("Cypher mode unknown  in .json file.");
                 }
 
                 //retornar o return do return
@@ -217,9 +217,9 @@ namespace PlaceholderTextApp.Controllers
                 //evita expose de variavel sensível em memory leaks
                 return GerarJsonAssinaturas(texto, rsa);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw new Exception($"Erro ao decifrar: {ex.Message}");
+                throw new Exception("Failed to decrypt the key. Please check your file and password.");
             }
         }
     }
