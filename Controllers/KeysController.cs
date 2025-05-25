@@ -33,13 +33,7 @@ namespace OpenSign.Controllers
                 TempData["Error"] = "Tamanho de pk invalido.";
                 return View();
             }
-            //cmode e chill
-            //pass
-            //if (keySize != 2048 && keySize != 3072 && keySize != 4096 || )
-            //{
-            //    TempData["Error"] = "Password is too weak.";
-            //    return View();
-            //}
+
 
             //string jsonPath = _keyService.GenerateRSAKeyPairJSON(keySize, pss, encmode);
             var jsonPath = _keyService.GenerateRSAKeyPairJSON(keySize, pss, encmode);
