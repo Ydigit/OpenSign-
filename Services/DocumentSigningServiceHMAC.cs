@@ -68,8 +68,10 @@ namespace OpenSign.Services
                 }
             }
 
+            ///@brief Generate a random 16-byte salt to derive the HMAC key
             byte[] salt = DerivationService.genSalt(16);
 
+            ///@brief Generate all possible combinations of fixed placeholder values
             var combinacoes = GenerateCombinations(fixedOptionValues);
             var combinacoesAssinadas = new Dictionary<string, object>();
 
@@ -77,13 +79,17 @@ namespace OpenSign.Services
             {
                 string textoFinal = texto;
 
+                ///@brief Replace each placeholder in the text with the corresponding fixed value
                 for (int i = 0; i < fixedPlaceholders.Count; i++)
                     textoFinal = textoFinal.Replace(fixedPlaceholders[i], combinacao[i]);
 
+                ///@brief Remove free-text placeholders (those without fixed options)
                 textoFinal = Regex.Replace(textoFinal, @"\[[^\]:\]]+\]", "");
 
+                ///@brief Calculate HMAC for the resulting text
                 var hmacHex = _hmacService.CalcularHmac(textoFinal, chaveHmac, salt);
 
+                ///@brief Store the result in the dictionary using the HMAC as key
                 combinacoesAssinadas[hmacHex] = new
                 {
                     text = textoFinal,

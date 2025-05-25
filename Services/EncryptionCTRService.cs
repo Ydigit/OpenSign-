@@ -28,32 +28,42 @@ public class EncryptionCTRService
         using (var aes = Aes.Create())
         {
             aes.Key = key;
-            aes.Mode = CipherMode.ECB;// ECB is used to simulate CTR
+            
+            //@brief ECB is used to simulate CTR
+            aes.Mode = CipherMode.ECB;
 
-            byte[] nonce = new byte[8]; // Randomly generated nonce
+            ///@brief Randomly generated nonce
+            byte[] nonce = new byte[8]; 
             RandomNumberGenerator.Fill(nonce);
 
-            byte[] counterBlock = new byte[16]; // 8-byte nonce + 8-byte counter
-            Array.Copy(nonce, counterBlock, nonce.Length); //add nonce to the array
+            ///@brief 8-byte nonce + 8-byte counter
+            byte[] counterBlock = new byte[16];
+
+            ///@brief add nonce to the array
+            Array.Copy(nonce, counterBlock, nonce.Length); 
 
             using (var encryptor = aes.CreateEncryptor())
             {
                 byte[] dataBytes = Encoding.UTF8.GetBytes(data);
-                byte[] cypherBytes = new byte[dataBytes.Length]; // CTR mode uses XOR, no padding
 
-                //block by block(each one of 16 bytes) 
+                ///@brief CTR mode uses XOR, no padding
+                byte[] cypherBytes = new byte[dataBytes.Length]; 
+
+                //@brief block by block(each one of 16 bytes) 
                 for (int i = 0; i < dataBytes.Length; i += 16)
                 {
-                    // Generate keystream block by encrypting the counter block
+                    ///@brief Generate keystream block by encrypting the counter block
                     byte[] keyStream = encryptor.TransformFinalBlock(counterBlock, 0, 16); //encriptar cada bloco
-                    int blockSize = Math.Min(16, dataBytes.Length - i); // Handle last block if smaller
 
-                    // XOR plaintext with keystream (byte by byte)
+                    ///@brief Handle last block if smaller
+                    int blockSize = Math.Min(16, dataBytes.Length - i);
+
+                    ///@brief XOR plaintext with keystream (byte by byte)
                     for (int j = 0; j < blockSize; j++)
                     {
                         cypherBytes[i + j] = (byte)(dataBytes[i + j] ^ keyStream[j]);
                     }
-                    // Increment counter (starting after the nonce)
+                    ///@brief Increment counter (starting after the nonce)
                     IncrementCounter(counterBlock, 8);
                 }
                 return (cypherBytes, nonce);
@@ -77,7 +87,7 @@ public class EncryptionCTRService
 
             counterBlock[i]++;
 
-             // Stop incrementing if no overflow occurred
+             ///@brief Stop incrementing if no overflow occurred
             if (counterBlock[i] != 0)
                 break;
         }

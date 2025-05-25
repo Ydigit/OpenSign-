@@ -45,7 +45,7 @@ public class DecryptionCTRService
             if (nonce.Length > 16)
                 throw new ArgumentException("Too much big nonce for 16 bytes AES block.");
 
-            // Derive the AES-256 key from the password and salt
+            ///@brief Derive the AES-256 key from the password and salt
             byte[] key = DerivationService.DeriveKey(rawPassword, salt); // 32 bytes for AES-256
 
             using var aes = Aes.Create();
@@ -54,7 +54,9 @@ public class DecryptionCTRService
             aes.Padding = PaddingMode.None;
 
             byte[] counterBlock = new byte[16];
-            Array.Copy(nonce, counterBlock, nonce.Length); //copy nonce to the array
+
+            ///@brief copy nonce to the array
+            Array.Copy(nonce, counterBlock, nonce.Length);
 
             byte[] decryptedBytes = new byte[encryptedData.Length];
 
@@ -63,15 +65,19 @@ public class DecryptionCTRService
             for (int i = 0; i < encryptedData.Length; i += 16)
             {
                 byte[] keyStream = new byte[16];
-                encryptor.TransformBlock(counterBlock, 0, 16, keyStream, 0); // Use TransformBlock
+
+                ///@brief Use TransformBlock
+                encryptor.TransformBlock(counterBlock, 0, 16, keyStream, 0);
 
                 int blockSize = Math.Min(16, encryptedData.Length - i);
 
                 for (int j = 0; j < blockSize; j++)
                 {
+                    ///@brief uploads the value doing the XOR 
                     decryptedBytes[i + j] = (byte)(encryptedData[i + j] ^ keyStream[j]);
                 }
-                IncrementCounter(counterBlock, 8);// Increment from byte 8 onward (after nonce)
+                //@ brief Increment from byte 8 onward (after nonce)
+                IncrementCounter(counterBlock, 8);
             }
 
             return Encoding.UTF8.GetString(decryptedBytes);
