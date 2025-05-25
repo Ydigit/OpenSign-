@@ -24,7 +24,7 @@ namespace OpenSign.Controllers
         {
             if (signedFile == null || publicKeyFile == null)
             {
-                TempData["Error"] = "Ficheiros inválidos. Por favor envie ambos os ficheiros .json.";
+                TempData["Error"] = "Invalid files. Please send both .json files.";
                 return RedirectToAction(nameof(VerifyView));
             }
 
@@ -42,38 +42,17 @@ namespace OpenSign.Controllers
                 bool isValid = _verifyService.ValidateSignature(signedJson, publicKeyJson);
 
                 if (isValid)
-                    TempData["Success"] = "A assinatura é válida!";
+                    TempData["Success"] = "Valid signature.";
                 else
-                    TempData["Error"] = "Assinatura inválida.";
+                    TempData["Error"] = "Invalid signature.";
 
                 return RedirectToAction(nameof(VerifyView));
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"Erro ao verificar assinatura: {ex.Message}";
+                TempData["Error"] = $"Verify signatures has failed: {ex.Message}";
                 return RedirectToAction(nameof(VerifyView));
             }
         }
     }
 }
-
-// Esperado
-//
-// Ficheiro assinado (signedFile.json):
-/*
-
-{
-  "content": "Texto original do documento",
-  "signature": "BASE64_DA_ASSINATURA"
-}
-
-*/
-
-// Chave pública (publicKey.json):
-/*
-
-{
-  "publicKey": "<RSAKeyValue><Modulus>...</Modulus><Exponent>...</Exponent></RSAKeyValue>"
-}
-
-*/

@@ -30,7 +30,7 @@ namespace OpenSign.Controllers
         public IActionResult Generate(int keySize, string encmode, string pss, string keys){
             if (keySize != 2048 && keySize != 3072 && keySize != 4096 )
             {
-                TempData["Error"] = "Tamanho de pk invalido.";
+                TempData["Error"] = "Invalid public key size.";
                 return View();
             }
             //cmode e chill
@@ -61,7 +61,7 @@ namespace OpenSign.Controllers
             //if(keys.Equals("pub"))
                 //return PhysicalFile(jsonPath.pubfilePath, "application/json", Path.GetFileName(jsonPath.pubfilePath));
 
-            TempData["Success"] = $"Chaves {encmode.ToUpper()} de {keySize} bits geradas com sucesso.";
+            TempData["Success"] = $"Keys {encmode.ToUpper()} of {keySize} bits generated with success.";
             return View();
         }
     }

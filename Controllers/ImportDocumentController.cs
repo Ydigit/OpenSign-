@@ -84,7 +84,7 @@ namespace PlaceholderTextApp.Controllers
                     }
                     catch (FormatException)
                     {
-                        ViewBag.OutputJson = "Erro: Chave pública está em formato Base64 inválido.";
+                        ViewBag.OutputJson = "Error: Public key with invalid Base64 format.";
                         return View();
                     }
 
@@ -94,11 +94,11 @@ namespace PlaceholderTextApp.Controllers
                     }
                     catch (CryptographicException ex)
                     {
-                        ViewBag.OutputJson = "Erro ao importar a chave pública: formato ASN.1 inválido ou corrompido.";
+                        ViewBag.OutputJson = "Error importing public key: ASN.1 format invalid or corrupted.";
                         ViewBag.AssinaturaValida = false;
                         ViewBag.TextoFinal = textoCompleto;
                         ViewBag.TextoAssinado = textoAssinado;
-                        Console.WriteLine($"Erro ao importar chave pública: {ex.Message}");
+                        Console.WriteLine($"Error importing public key: {ex.Message}");
                         return View();
                     }
 
@@ -112,7 +112,7 @@ namespace PlaceholderTextApp.Controllers
                     }
                     catch (FormatException)
                     {
-                        ViewBag.OutputJson = "Erro: Assinatura não está codificada corretamente em Base64.";
+                        ViewBag.OutputJson = "Error: Signature is not coded correctly in Base64.";
                         ViewBag.AssinaturaValida = false;
                         ViewBag.TextoFinal = textoCompleto;
                         ViewBag.TextoAssinado = textoAssinado;

@@ -28,7 +28,7 @@ namespace OpenSign.Controllers
             // Verifica se a chave HMAC está presente e válida
             if (!form.TryGetValue("hmacKey", out var hmacKeyValue) || string.IsNullOrWhiteSpace(hmacKeyValue))
             {
-                TempData["Error"] = "Chave HMAC em falta.";
+                TempData["Error"] = "Missing HMAC key.";
                 return View();
             }
 
@@ -43,7 +43,7 @@ namespace OpenSign.Controllers
                 // Verifica se o ficheiro está vazio
                 if (string.IsNullOrWhiteSpace(jsonText))
                 {
-                    TempData["Error"] = "Conteúdo JSON vazio.";
+                    TempData["Error"] = "Empty .json content.";
                     return View();
                 }
 
@@ -51,7 +51,7 @@ namespace OpenSign.Controllers
                 var json = JsonConvert.DeserializeObject<dynamic>(jsonText);
                 if (json == null)
                 {
-                    TempData["Error"] = "Erro ao processar o ficheiro JSON.";
+                    TempData["Error"] = "Error processing .json file.";
                     return View();
                 }
 
@@ -74,7 +74,7 @@ namespace OpenSign.Controllers
                     !form.TryGetValue("signedCombinations", out var signedJsonValue)||
                     !form.TryGetValue("saltBase64", out var saltBase64Value))
                 {
-                    TempData["Error"] = "Dados do formulário em falta.";
+                    TempData["Error"] = "Formulary data missing.";
                     return View();
                 }
 
@@ -84,7 +84,7 @@ namespace OpenSign.Controllers
 
                 if (string.IsNullOrWhiteSpace(template) || string.IsNullOrWhiteSpace(signedJson))
                 {
-                    TempData["Error"] = "Campos obrigatórios estão vazios.";
+                    TempData["Error"] = "Obligatory fields are empty.";
                     return View();
                 }
 
@@ -92,7 +92,7 @@ namespace OpenSign.Controllers
                 var signedCombinations = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(signedJson);
                 if (signedCombinations == null)
                 {
-                    TempData["Error"] = "Assinaturas inválidas.";
+                    TempData["Error"] = "Invalid Signatures.";
                     return View();
                 }
 

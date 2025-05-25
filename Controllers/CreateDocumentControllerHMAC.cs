@@ -29,7 +29,7 @@ namespace OpenSignControllers
             string? chaveHmacInput = form["hmacKey"];
 
             if (string.IsNullOrWhiteSpace(textoInput) || string.IsNullOrWhiteSpace(chaveHmacInput))
-                return BadRequest("Texto ou chave HMAC inválida.");
+                return BadRequest("Invalid text or HMAC key.");
 
             object resultJson;
             try
@@ -38,7 +38,7 @@ namespace OpenSignControllers
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"Erro ao gerar HMACs: {ex.Message}";
+                TempData["Error"] = $"Erro generating HMAC's: {ex.Message}";
                 return RedirectToAction("CreateDocumentHMAC"); // Corrigido nome da action
             }
 

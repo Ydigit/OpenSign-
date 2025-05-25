@@ -10,7 +10,7 @@ public class DecryptionCTRService
         try{
             string jsonContent = File.ReadAllText(jsonFilePath);
             var jsonData = JsonSerializer.Deserialize<JsonData>(jsonContent) ??
-                throw new InvalidOperationException("Formato JSON inválido.");
+                throw new InvalidOperationException("Invalid .json format.");
 
             byte[] encryptedData = Convert.FromBase64String(jsonData.EncryptedSecretKey!);
             byte[] nonce = Convert.FromBase64String(jsonData.Nonce!);

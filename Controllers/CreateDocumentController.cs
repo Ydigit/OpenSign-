@@ -212,7 +212,6 @@ namespace PlaceholderTextApp.Controllers
                 }
 
                 //retornar o return do return
-
                 // Limpar o arquivo temporário
                 System.IO.File.Delete(tempFilePath);
 
