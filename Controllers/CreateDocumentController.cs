@@ -71,6 +71,10 @@ namespace PlaceholderTextApp.Controllers
             var regex = new Regex(@"\[([^\]]*)\]");
             var matches = regex.Matches(texto);
 
+            int maxPlaceholders = 7;
+            if (matches.Count > maxPlaceholders)
+                throw new Exception($"O texto excede o limite de {maxPlaceholders} placeholders.");
+
             var placeholders = new Dictionary<string, object>();
             var fixedOptionValues = new List<List<string>>();
             var fixedPlaceholders = new List<string>();
@@ -88,6 +92,9 @@ namespace PlaceholderTextApp.Controllers
                         .Select(o => o.Trim())
                         .Where(o => !string.IsNullOrWhiteSpace(o))
                         .ToList();
+
+                    if (opcoes.Count > 3)
+                        throw new Exception($"O placeholder '{nome}' excede o limite de 3 opções.");
 
                     if (opcoes.Count > 0)
                     {

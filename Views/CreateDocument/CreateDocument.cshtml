@@ -4,31 +4,39 @@
 
 <div id="particles-js"></div>
 
-<h2>Gerar Documento com Assinaturas</h2>
+<h2>Generate Document with Signatures</h2>
 
 <form method="post" asp-controller="CreateDocument" asp-action="GerarEAssinarJson" enctype="multipart/form-data">
     <div class="form-group">
-        <label for="novoInput">Texto com placeholders</label>
-        <textarea name="novoInput" class="form-control" rows="10" placeholder="Ex: Olá [nome: Pedro, Ana], você está em [cidade]..." required></textarea>
+        <label for="novoInput">Text with Placeholders</label>
+        <textarea name="novoInput" class="form-control" rows="10" placeholder="Ex: Hello [name: Pedro, Ana], you are in [city]..." required></textarea>
     </div>
 
     <div class="form-group">
-        <label for="keyFile">Chave Privada Cifrada (.json)</label>
+        <label for="keyFile">Encrypted Private Key (.json)</label>
         <input type="file" name="keyFile" class="form-control" required accept=".json" />
     </div>
 
     <div class="form-group">
-        <label for="pss">Password para decifrar a chave</label>
+        <label for="pss">Password to Decrypt Key</label>
         <div class="input-group">
-            <input type="password" name="pss" id="pss" class="form-control" placeholder="Introduce a tua password" required />
+            <input type="password" name="pss" id="pss" class="form-control" placeholder="Introduce your password" required />
             <button type="button" class="btn btn-outline-secondary" id="togglePassword">
                 <i class="bi bi-eye"></i>
             </button>
         </div>
     </div>
 
-    <button type="submit" class="btn btn-primary mt-3">Gerar JSON com Assinaturas</button>
+    <button type="submit">Generate .json with Signatures</button>
 </form>
+
+<div class="text-center content">
+    <p><strong>If you want to verify your document</strong></p>
+
+    <p class="mt-4">
+        <a class="btn btn-warning btn-lg" href="/VerifyDocument"> Verify Document </a>
+    </p>
+</div>
 
 @if (TempData["Success"] != null)
 {
