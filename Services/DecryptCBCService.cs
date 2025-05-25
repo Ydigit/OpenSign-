@@ -27,31 +27,31 @@ namespace OpenSign.Services
         {
             try
             {
-                // Read the encrypted JSON content from file
+                /// @brief Read the encrypted JSON content from file
                 string jsonContent = File.ReadAllText(jsonFilePath);
 
-                // Deserialize JSON into object with required fields
+                /// @brief Deserialize JSON into object with required fields
                 var jsonData = JsonSerializer.Deserialize<JsonData>(jsonContent) ??
                     throw new InvalidOperationException("Invalid JSON format");
 
-                // Extract the necessary values from JSON
+                /// @brief Extract the necessary values from JSON
                 byte[] encryptedData = Convert.FromBase64String(jsonData.EncryptedSecretKey!);
                 byte[] iv = Convert.FromBase64String(jsonData.Iv!);
                 byte[] salt = Convert.FromBase64String(jsonData.Salt!);
                 string cipherMode = jsonData.CipherMode ?? "aes-256-cbc";
 
-                // Verify the cipher mode is supported
+                /// @brief Verify the cipher mode is supported
                 if (cipherMode.ToLower() != "aes-256-cbc")
                     throw new NotSupportedException($"Cipher mode '{cipherMode}' is not supported yet.");
 
-                // Derive AES key from password and salt
+                /// @brief Derive AES key from password and salt
                 byte[] key = DerivationService.DeriveKey(rawPassword, salt);
 
-                // Ensure the derived key is 256 bits
+                /// @brief Ensure the derived key is 256 bits
                 if (key.Length != 32)
                     throw new ArgumentException($"Invalid key size. Expected 32 bytes, got {key.Length}");
 
-                // Create AES instance with CBC mode and PKCS7 padding
+                /// @brief Create AES instance with CBC mode and PKCS7 padding
                 using (var aes = Aes.Create())
                 {
                     aes.Key = key;
@@ -59,25 +59,25 @@ namespace OpenSign.Services
                     aes.Mode = CipherMode.CBC;
                     aes.Padding = PaddingMode.PKCS7;
 
-                    // Create decryptor and stream to process encrypted data
+                    /// @brief Create decryptor and stream to process encrypted data
                     using (var decryptor = aes.CreateDecryptor())
                     using (var ms = new MemoryStream(encryptedData))
                     using (var cs = new CryptoStream(ms, decryptor, CryptoStreamMode.Read))
                     using (var sr = new StreamReader(cs))
                     {
-                        // Read and return the decrypted PEM-formatted private key
+                        /// @brief Read and return the decrypted PEM-formatted private key
                         return sr.ReadToEnd();
                     }
                 }
             }
             catch (CryptographicException ex)
             {
-                // Likely due to incorrect password or corrupted input
+                /// @brief Likely due to incorrect password or corrupted input
                 throw new CryptographicException("Decryption failed - likely wrong password", ex);
             }
             catch (Exception ex)
             {
-                // Fallback for unexpected errors
+                /// @brief Fallback for unexpected errors
                 throw new Exception("Decryption error", ex);
             }
         }
