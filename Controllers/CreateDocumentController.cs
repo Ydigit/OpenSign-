@@ -1,44 +1,29 @@
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using System.Security.Cryptography;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.IO;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using OpenSign.Services;
-using System.Text.Json;
+using PlaceholderTextApp.Services;
+
 
 namespace PlaceholderTextApp.Controllers
 {
-    /// @brief Controller responsible for creating and signing documents using RSA.
     [Route("CreateDocument")]
     public class CreateDocumentController : Controller
     {
-        /// @brief Shows the view for document creation.
-        /// @return The document creation view.
+        private readonly DocumentSigningService _documentSigningService;
+
+        public CreateDocumentController()
+        {
+            _documentSigningService = new DocumentSigningService();
+        }
+
         [HttpGet]
         public IActionResult CreateDocument()
         {
             return View();
         }
 
-        /// @brief CBC decryption service.
-        private readonly DecryptCBCService _decryptServiceCBC;
-        /// @brief CTR decryption service.
-        private readonly DecryptionCTRService _decryptServiceCTR;
-
-        /// @brief Default constructor that initializes the decryption services.
-        public CreateDocumentController()
-        {
-            _decryptServiceCBC = new DecryptCBCService();
-            _decryptServiceCTR = new DecryptionCTRService();
-
-        }
-
-        /// @brief Generates and signs a JSON with digital signatures for all possible placeholder combinations.
-        /// @param form Form data with user input.
-        /// @param keyFile File containing the encrypted private key.
-        /// @return JSON file with digital signatures.
         [HttpPost("GerarEAssinarJson")]
         public async Task<IActionResult> GerarEAssinarJson(IFormCollection form, IFormFile keyFile)
         {
@@ -46,192 +31,26 @@ namespace PlaceholderTextApp.Controllers
             string? password = form["pss"];
 
             if (string.IsNullOrWhiteSpace(textoInput) || string.IsNullOrWhiteSpace(password))
-                return BadRequest("Text or password invalid.");
+                return BadRequest("Texto ou senha inválido.");
 
             if (keyFile == null || keyFile.Length == 0)
-                return BadRequest("Key file not inserted.");
+                return BadRequest("Arquivo de chave não fornecido.");
 
-            object resultJson;
             try
             {
-                 // The JSON is the result of decryption without exposing the sensitive variable
-                resultJson = await Decifrar(keyFile, password, textoInput);
+                var resultJson = await _documentSigningService.ProcessDocumentAsync(keyFile, password, textoInput);
+
+                var jsonString = System.Text.Json.JsonSerializer.Serialize(resultJson, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                var bytes = Encoding.UTF8.GetBytes(jsonString);
+                var fileName = "Signatures.json";
+
+                TempData["Success"] = "Document generated with Sucess!";
+                return File(bytes, "application/json", fileName);
             }
             catch (Exception ex)
             {
-                TempData["Error"] = $"Decrypt Key Error: {ex.Message}";
+                TempData["Error"] = $"Error: {ex.Message}";
                 return RedirectToAction("CreateDocument");
-            }
-
-            //
-            var jsonString = JsonConvert.SerializeObject(resultJson, Formatting.Indented);
-            var bytes = Encoding.UTF8.GetBytes(jsonString);
-            var fileName = "assinaturas.json";
-
-            TempData["Success"] = "Documento gerado com sucesso!";
-            return File(bytes, "application/json", fileName);
-        }
-
-        private object GerarJsonAssinaturas(string texto, RSA rsa)
-        {
-            var regex = new Regex(@"\[([^\]]*)\]");
-            var matches = regex.Matches(texto);
-
-            int maxPlaceholders = 7;
-            if (matches.Count > maxPlaceholders)
-                throw new Exception($"The text exceeds the limit of {maxPlaceholders} placeholders.");
-
-            var placeholders = new Dictionary<string, object>();
-            var fixedOptionValues = new List<List<string>>();
-            var fixedPlaceholders = new List<string>();
-
-            foreach (Match match in matches)
-            {
-                string conteudo = match.Groups[1].Value;
-
-                if (conteudo.Contains(":"))
-                {
-                    var partes = conteudo.Split(":", 2);
-                    string nome = partes[0].Trim();
-                    var opcoes = partes[1]
-                        .Split(',')
-                        .Select(o => o.Trim())
-                        .Where(o => !string.IsNullOrWhiteSpace(o))
-                        .ToList();
-
-                    if (opcoes.Count > 3)
-                        throw new Exception($"The placeholder '{nome}' exceeds the limit of 3 options.");
-
-                    if (opcoes.Count > 0)
-                    {
-                        placeholders[nome] = opcoes;
-                        fixedOptionValues.Add(opcoes);
-                        fixedPlaceholders.Add(match.Value);
-                    }
-                    else
-                    {
-                        placeholders[nome] = "Free Text";
-                    }
-                }
-                else
-                {
-                    string nome = conteudo.Trim();
-                    placeholders[nome] = "Free Text";
-                }
-            }
-
-            var combinacoes = GerarCombinacoes(fixedOptionValues);
-            var combinacoesAssinadas = new Dictionary<string, object>();
-
-            foreach (var combinacao in combinacoes)
-            {
-                string textoFinal = texto;
-                for (int i = 0; i < fixedPlaceholders.Count; i++)
-                {
-                    textoFinal = textoFinal.Replace(fixedPlaceholders[i], combinacao[i]);
-                }
-
-                byte[] dados = Encoding.UTF8.GetBytes(textoFinal);
-                using SHA256 sha256 = SHA256.Create();
-                byte[] hash = sha256.ComputeHash(dados);
-                string hashBase64 = Convert.ToBase64String(hash);
-
-                byte[] assinatura = rsa.SignHash(hash, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-                string assinaturaBase64 = Convert.ToBase64String(assinatura);
-
-                combinacoesAssinadas[hashBase64] = new
-                {
-                    text = textoFinal,
-                    signature = assinaturaBase64,
-                    hash = hashBase64
-                };
-            }
-
-            return new
-            {
-                original = texto,
-                placeholders = placeholders,
-                signed_combinations = combinacoesAssinadas,
-                signature_algorithm = "RSA",
-            };
-        }
-
-        private List<List<string>> GerarCombinacoes(List<List<string>> listas)
-        {
-            var resultado = new List<List<string>> { new List<string>() };
-
-            foreach (var lista in listas)
-            {
-                var temp = new List<List<string>>();
-                foreach (var prefixo in resultado)
-                {
-                    foreach (var item in lista)
-                    {
-                        var nova = new List<string>(prefixo) { item };
-                        temp.Add(nova);
-                    }
-                }
-                resultado = temp;
-            }
-
-            return resultado;
-        }
-
-        public async Task<object> Decifrar(IFormFile keyFile, string pss, string texto)
-        {
-            if (keyFile == null || string.IsNullOrEmpty(pss))
-            {
-                throw new ArgumentException("Error: File or password invalid!");
-            }
-
-            try
-            {
-                // Salvar o arquivo temporariamente
-                var tempFilePath = Path.GetTempFileName();
-                using (var stream = System.IO.File.Create(tempFilePath))
-                {
-                    await keyFile.CopyToAsync(stream);
-                }
-
-                // Ler o JSON do arquivo
-                string jsonContent = await System.IO.File.ReadAllTextAsync(tempFilePath);
-                var keyData = System.Text.Json.JsonSerializer.Deserialize<KeyDataModel>(jsonContent);
-
-                if (keyData == null || string.IsNullOrEmpty(keyData.CipherMode))
-                {
-                    throw new Exception(".json file is bad formed or does not have cypher mode.");
-                }
-
-                // Escolher o serviço de decifração com base no modo
-                string decryptedPrivateKey;
-                if (keyData.CipherMode == "aes-256-cbc")
-                {
-                    decryptedPrivateKey = _decryptServiceCBC.DecryptPrivateKeyFromJson(tempFilePath, pss);
-                }
-                else if (keyData.CipherMode == "aes-256-ctr")
-                {
-                    decryptedPrivateKey = _decryptServiceCTR.DecryptPrivateKeyFromJson(tempFilePath, pss);
-                }
-                else
-                {
-                    throw new Exception("Cypher mode unknown  in .json file.");
-                }
-
-                //retornar o return do return
-                // Limpar o arquivo temporário
-                System.IO.File.Delete(tempFilePath);
-
-                // Criar o objeto RSA a partir da chave privada decifrada (em formato PEM)
-                using RSA rsa = RSA.Create();
-                //byte[] b = Convert.FromBase64String(decryptedPrivateKey);
-                rsa.ImportPkcs8PrivateKey(Convert.FromBase64String(decryptedPrivateKey), out _);
-                //retorna logo a info assinada, sem contacto com a variavel sensível sk decifrada -> em Json
-                //evita expose de variavel sensível em memory leaks
-                return GerarJsonAssinaturas(texto, rsa);
-            }
-            catch (Exception)
-            {
-                throw new Exception("Failed to decrypt the key. Please check your file and password.");
             }
         }
     }
