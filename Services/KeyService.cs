@@ -1,122 +1,84 @@
 using System;
 using System.IO;
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Security.Cryptography.Xml;
-using System.Security.Policy;
 using System.Text;
 using System.Text.Json;
 using OpenSign.Shared;
 
+/// @brief Service that manages RSA key generation, encryption, storage, and retrieval.
 public class KeyService
 {
-    private string _publicKey = string.Empty; //direta no disco
-    private string _privateKey = string.Empty; //cifrar e guardar no disco
+    private string _publicKey = string.Empty;
+    private string _privateKey = string.Empty;
     private string _keyCreationDate = string.Empty;
 
-    /// <summary>
-    /// Inicializa as chaves RSA do serviço.
-    /// <para>
-    /// Se o usuário optar por gerar novas chaves, elas serão geradas com o tamanho
-    /// especificado e salvas em arquivos XML.
-    /// </para>
-    /// <para>
-    /// Se o usuário optar por não gerar novas chaves, elas serão carregadas dos
-    /// arquivos XML existentes.
-    /// </para>
-    /// </summary>
-    /// 
-    //meter a rawpass
+    /// @brief Initializes RSA keys. Generates new ones if valid size is provided, or loads existing ones.
+    /// @param keySize RSA key size (2048, 3072, or 4096).
+    /// @param rawpass User password for encryption.
+    /// @param format Format for key output.
     public void InitializeKeys(int keySize, string rawpass, string format)
     {
         if (keySize == 2048 || keySize == 3072 || keySize == 4096)
         {
-            //Based on settings defined by the user, internal vars get the actual values for this void callback
-            GenerateKeys(keySize,rawpass,format);
+            GenerateKeys(keySize, rawpass, format);
         }
         else
         {
             LoadKeysFromFiles();
         }
     }
-    //Gerar as KeysF
+
+    /// @brief Wrapper to generate RSA keys.
     public void GenerateKeys(int keySize, string rawpass, string format)
     {
-        GenerateRSAKeyPairJSON(keySize,rawpass, format);
+        GenerateRSAKeyPairJSON(keySize, rawpass, format);
     }
 
-    /// <summary>
-    /// Generates RSA keys based on the specified key size and format.
-    /// </summary>
-    /// 
-    //meter : iv, salt, pk, skc, modo
-    //mediante o modo ele escolhe a cifra
-
-    public (string jsonfilePath, string pubfilePath) GenerateRSAKeyPairJSON(int keySize, string rawpass, string encmode) // meter sempre pem
+    /// @brief Generates RSA key pair and stores it in JSON and PEM format.
+    /// @param keySize The RSA key size.
+    /// @param rawpass Password to derive symmetric encryption key.
+    /// @param encmode Encryption mode ("aes-256-cbc" or "aes-256-ctr").
+    /// @return Tuple with private and public key file paths.
+    public (string jsonfilePath, string pubfilePath) GenerateRSAKeyPairJSON(int keySize, string rawpass, string encmode)
     {
-        //prepare paths for the file location
-        string dateTicks = DateTime.Now.Ticks.ToString();//momento de geracao
-        string pubfilePath = null;
-        string jsonfilePath = null;//tirar
-        EncryptionCBCService? encryptionServiceCBC = null;
-        EncryptionCTRService? encryptionServiceCTR = null;
+        string dateTicks = DateTime.Now.Ticks.ToString();
+        string pubfilePath;
+        string jsonfilePath;
         object? jsonDownload = null;
-
 
         using (var rsa = RSA.Create())
         {
-                rsa.KeySize = keySize;
-                    //rsa values
-                    _publicKey = ExportPublicKeyPEM(rsa);
-                    _privateKey = ExportPrivateKeyPEM(rsa); //ta em memo aqui a pk
-                    //file paths
-                     pubfilePath = AppPaths.GetKeyPathPEMpublic($"pk-{dateTicks}");
-                     //tira o da key
-                     jsonfilePath = AppPaths.SecurePrivateBackupPathJSON($"sk-{dateTicks}");
-                    //Check if the directory exists, if not create it
-                    string directory = Path.GetDirectoryName(pubfilePath)!;
-                    if (!Directory.Exists(directory))
-                    {
-                        Directory.CreateDirectory(directory);
-                    }
+            rsa.KeySize = keySize;
+            _publicKey = ExportPublicKeyPEM(rsa);
+            _privateKey = ExportPrivateKeyPEM(rsa);
 
-                    //var deriveService = new DerivationService();
-                    var passderivada = DerivationService.DeriveKey(rawpass); // sem new DerivationService()
+            pubfilePath = AppPaths.GetKeyPathPEMpublic($"pk-{dateTicks}");
+            jsonfilePath = AppPaths.SecurePrivateBackupPathJSON($"sk-{dateTicks}");
 
-                    var passwordDerivada = passderivada.Kderivada;
-                    //**********+//ERRO da geracao random****************
-                    var salt = passderivada.salt;
+            Directory.CreateDirectory(Path.GetDirectoryName(pubfilePath)!);
 
-                    //guardar a chave publica 
-            //Ate aqui gera as chaves
+            var passderivada = DerivationService.DeriveKey(rawpass);
+            var passwordDerivada = passderivada.Kderivada;
+            var salt = passderivada.salt;
 
             if (encmode.Equals("aes-256-cbc"))
             {
-                encryptionServiceCBC = new EncryptionCBCService();
-                var result = encryptionServiceCBC.EncryptCBC(_privateKey, passwordDerivada);//tupl com a cifra e iv
-                var cbcIv = result.Iv;
-                var encsk = result.EncryptedData;
-                //json pra decifrar: cippher, iv, salt, cipherMode
+                var result = new EncryptionCBCService().EncryptCBC(_privateKey, passwordDerivada);
                 jsonDownload = new
                 {
-                    EncryptedSecretKey = Convert.ToBase64String(encsk),
-                    Iv = Convert.ToBase64String(cbcIv),
+                    EncryptedSecretKey = Convert.ToBase64String(result.EncryptedData),
+                    Iv = Convert.ToBase64String(result.Iv),
                     Salt = Convert.ToBase64String(salt),
                     CipherMode = encmode
                 };
-
             }
-            else if(encmode.Equals("aes-256-ctr"))
+            else if (encmode.Equals("aes-256-ctr"))
             {
-                encryptionServiceCTR = new EncryptionCTRService();
-                var result = encryptionServiceCTR.EncryptCTR(_privateKey, passwordDerivada);
-                var ctrNounce = result.nonce;
-                var encsk = result.EncryptedPrivateKey;
-                //json pra decifrar: cipher, nounce, salt, cipherMode
+                var result = new EncryptionCTRService().EncryptCTR(_privateKey, passwordDerivada);
                 jsonDownload = new
                 {
-                    EncryptedSecretKey = Convert.ToBase64String(encsk),
-                    Nonce = Convert.ToBase64String(ctrNounce),
+                    EncryptedSecretKey = Convert.ToBase64String(result.EncryptedPrivateKey),
+                    Nonce = Convert.ToBase64String(result.nonce),
                     Salt = Convert.ToBase64String(salt),
                     CipherMode = encmode
                 };
@@ -126,150 +88,92 @@ public class KeyService
                 throw new ArgumentException("Invalid encryption mode.");
             }
 
-            var jsonDownloadPublicKey = new
-                {
-                    //PublicKey = Convert.ToBase64String(Encoding.UTF8.GetBytes(_publicKey)),
-                    PublicKey = _publicKey,
-                };
+            var jsonDownloadPublicKey = new { PublicKey = _publicKey };
+            var options = new JsonSerializerOptions { Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
 
+            File.WriteAllText(jsonfilePath, JsonSerializer.Serialize(jsonDownload));
+            File.WriteAllText(pubfilePath, JsonSerializer.Serialize(jsonDownloadPublicKey, options));
 
-            var options = new JsonSerializerOptions
-            {
-                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-            };
-            
-            string jsonDownloadString = JsonSerializer.Serialize(jsonDownload);
-            string jsonDownloadStringPublicKey = JsonSerializer.Serialize(jsonDownloadPublicKey, options);
-            // Verifica se a pasta securekeys/private existe
-            string privateDirectory = Path.GetDirectoryName(jsonfilePath)!;
-            if (!Directory.Exists(privateDirectory))
-            {
-                Directory.CreateDirectory(privateDirectory);
-            }
-
-            //guardar o JSON
-            File.WriteAllText(jsonfilePath, jsonDownloadString);//escreve em string o json
-            File.WriteAllText(pubfilePath,jsonDownloadStringPublicKey);
-
-
-           return (jsonfilePath, pubfilePath);
-
+            return (jsonfilePath, pubfilePath);
         }
     }
 
-    /// <summary>
-    /// Carrega as chaves RSA do serviço a partir de arquivos existentes.
-    /// </summary>
-    /// 
-    //Aux Functions
-    // Extract nr o Ticks from the file name
+    /// @brief Loads the most recent RSA key pair from the storage path.
+    private void LoadKeysFromFiles()
+    {
+        EnsureKeyPathExists();
+
+        var publicKeys = Directory.GetFiles(AppPaths.KeysPath, "public_*.pem")
+            .Concat(Directory.GetFiles(AppPaths.KeysPath, "public_*.xml"))
+            .ToList();
+
+        if (!publicKeys.Any())
+        {
+            Console.WriteLine("No public keys available for you!");
+            return;
+        }
+
+        var latestPublicKey = publicKeys
+            .OrderByDescending(path => ExtractTicksFromFileName(Path.GetFileNameWithoutExtension(path)))
+            .First();
+
+        string timestamp = ExtractTimestampFromFileName(Path.GetFileNameWithoutExtension(latestPublicKey));
+        string latestPrivateKey = latestPublicKey.Replace("public_", "private_");
+
+        if (File.Exists(latestPrivateKey) && File.Exists(latestPublicKey))
+        {
+            _publicKey = File.ReadAllText(latestPublicKey);
+            _privateKey = File.ReadAllText(latestPrivateKey);
+            _keyCreationDate = timestamp;
+        }
+        else
+        {
+            Console.WriteLine("Public or Private Key Missing :(");
+        }
+    }
+
+    /// @brief Ensures the key path directory exists.
+    private void EnsureKeyPathExists()
+    {
+        if (!Directory.Exists(AppPaths.KeysPath))
+        {
+            Directory.CreateDirectory(AppPaths.KeysPath);
+        }
+    }
+
+    /// @brief Extracts ticks (timestamp) from a filename.
     private long ExtractTicksFromFileName(string fileNameWithoutExtension)
     {
-        //array for separation
-        var parts = fileNameWithoutExtension.Split('_');//unecessary chars from fileName
-        if (parts.Length == 2 && long.TryParse(parts[1], out long ticks)) //Str->Long if success -> ticks
+        var parts = fileNameWithoutExtension.Split('_');
+        if (parts.Length == 2 && long.TryParse(parts[1], out long ticks))
         {
             return ticks;
         }
         return 0;
     }
 
-    // Get timeStamp function
+    /// @brief Extracts timestamp string from filename.
     private string ExtractTimestampFromFileName(string fileNameWithoutExtension)
     {
         var parts = fileNameWithoutExtension.Split('_');
-        if (parts.Length == 2)
-            return parts[1]; //returns only the raw ticks value as a String
-        return "";
+        return parts.Length == 2 ? parts[1] : "";
     }
 
-    private void EnsureKeyPathExists()
-    {
-        if (Directory.Exists(AppPaths.KeysPath))
-        {
-            Console.WriteLine("KeyPath is there");
-        }
-        else
-        {
-            Directory.CreateDirectory(AppPaths.KeysPath);
-        }
-    }
-
-
-
-
-    private void LoadKeysFromFiles()
-    {
-        EnsureKeyPathExists(); //KeysPAth
-
-        //List for files present in the KeysPath dir with public & ext of pem || xml
-        var publicKeys = Directory.GetFiles(AppPaths.KeysPath, "public_*.pem")
-            .Concat(Directory.GetFiles(AppPaths.KeysPath, "public_*.xml"))
-            .ToList();
-
-        if (!publicKeys.Any())//if empty
-        {
-            Console.WriteLine("No public keys available for you!");
-            return;
-        }
-
-        // Extract ticks from the previous list
-        //Here we are able to sort the files, where for each string(path/filename) remove extension
-        //inject on the tick extractor as a string without any .pem or .xml
-        //Basically orders from the highest to the lowest value of ticks bcs they are longs, then select the first one
-        //All for public ofc -> reuse for private search
-        //Selecting the latest fileName /w ext so for private just replace the pub to priv
-        var latestPublicKey = publicKeys
-            .OrderByDescending(path => ExtractTicksFromFileName(Path.GetFileNameWithoutExtension(path)))
-            .First();
-
-        // Extract ticks as string from array of the trim of the fileName
-        string timestamp = ExtractTimestampFromFileName(Path.GetFileNameWithoutExtension(latestPublicKey));
-        
-        // Construir o nome do ficheiro privado correspondente
-        string latestPrivateKey = latestPublicKey.Replace("public_", "private_");
-
-        if (File.Exists(latestPrivateKey) && File.Exists(latestPublicKey))
-        {
-            //If they exist on the sys->2 string for each content
-            _publicKey = File.ReadAllText(latestPublicKey);
-            _privateKey = File.ReadAllText(latestPrivateKey);
-            _keyCreationDate = timestamp;//equal for both
-        }
-        else
-        {
-            Console.WriteLine("Public or Private Keyy Missing:(");
-        }
-    }
-
-
-
-
-
-    //------------------------------------------------------------------------
-    /// <summary>
-    /// Exporta a chave pública em formato PEM.
-    /// </summary>
+    /// @brief Exports the public RSA key in base64 (SPKI format).
     private string ExportPublicKeyPEM(RSA rsa)
     {
         byte[] publicKeyBytes = rsa.ExportSubjectPublicKeyInfo();
-        //return PemEncode("PUBLIC KEY", publicKeyBytes);
         return Convert.ToBase64String(publicKeyBytes);
     }
 
-    /// <summary>
-    /// Exports the private key in PEM format.
-    /// </summary>
+    /// @brief Exports the private RSA key in base64 (PKCS#8 format).
     private string ExportPrivateKeyPEM(RSA rsa)
     {
-        byte[] privateKeyBytes = rsa.ExportPkcs8PrivateKey();   
-        //return PemEncode("PRIVATE KEY", privateKeyBytes);
+        byte[] privateKeyBytes = rsa.ExportPkcs8PrivateKey();
         return Convert.ToBase64String(privateKeyBytes);
     }
 
-    /// <summary>
-    /// Encodes the given byte array in PEM format with the specified label.
-    /// </summary>
+    /// @brief Encodes given key bytes into PEM format.
     public static string PemEncode(string label, byte[] data)
     {
         var builder = new StringBuilder();
@@ -279,9 +183,7 @@ public class KeyService
         return builder.ToString();
     }
 
-    /// <summary>
-    /// Returns a new object with the current values of the public and private keys.
-    /// </summary>
+    /// @brief Gets the current key pair as a dynamic object.
     public object GetCurrentKeys()
     {
         return new
@@ -291,14 +193,3 @@ public class KeyService
         };
     }
 }
-
-
-/*
-dotnet new console -n HelloWorldApp
-cd HelloWorldApp
-dotnet run
-
-http://localhost:5016/api/key/keys/2048
-http://localhost:5016/api/key/keys/3072
-http://localhost:5016/api/key/keys/4096
-*/
