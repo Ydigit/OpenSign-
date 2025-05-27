@@ -11,8 +11,9 @@ builder.WebHost.UseUrls($"http://+:{port}");
 builder.Services.AddControllersWithViews();
 // Key Service will be saved for a KeyController to controll dependency inj we should register on Program.cs
 builder.Services.AddSingleton<KeyService>();
-
+Console.WriteLine(" App building...");
 var app = builder.Build();
+Console.WriteLine(" App built");
 
 if (!app.Environment.IsDevelopment())
 {
@@ -34,4 +35,5 @@ app.MapControllerRoute(
 
 app.MapControllers(); // Important for API
 
+Console.WriteLine(" Starting app...");
 app.Run();
