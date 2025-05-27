@@ -5,7 +5,8 @@ using Microsoft.Extensions.Hosting;
 var builder = WebApplication.CreateBuilder(args);
 
 // Port for Http
-builder.WebHost.UseUrls("http://localhost:5016");
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://+:{port}");
 
 builder.Services.AddControllersWithViews();
 // Key Service will be saved for a KeyController to controll dependency inj we should register on Program.cs
